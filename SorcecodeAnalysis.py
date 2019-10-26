@@ -6,8 +6,6 @@ from git import Repo
 
 # GitPython code from example at https://www.fullstackpython.com/blog/first-steps-gitpython.html
 
-COMMITS_TO_PRINT = 50
-
 class FileStats:
     def __init__(self, filename: str, username: str, numberOfChanges: int):
         self.Filename = filename
@@ -62,7 +60,7 @@ if __name__ == "__main__":
         print('Repo at {} successfully loaded.'.format(repo_path))
         print_repository(repo)
         # create list of commits then print some of them to stdout
-        commits = list(repo.iter_commits('master'))[:COMMITS_TO_PRINT]
+        commits = list(repo.iter_commits('master'))
         numberOfCommits = len(commits)
         print("Analysing commits: {}".format(numberOfCommits))
         for commit in commits:
@@ -74,8 +72,11 @@ if __name__ == "__main__":
             print(
                 "- {}: {}".format(fileChanges[filename].Filename, fileChanges[filename].NumberOfChanges))
         for filenameAuthor in (sorted(fileChangesByUser, key=lambda filenameAuthor: fileChangesByUser[filenameAuthor].NumberOfChanges, reverse=True)):
-            print("- {}, {}: {}".format(fileChangesByUser[filenameAuthor].Filename,
-                                    fileChangesByUser[filenameAuthor].Username,
-                                    fileChangesByUser[filenameAuthor].NumberOfChanges))
+            if(fileChangesByUser[filenameAuthor].NumberOfChanges > 2):
+                print("- {}, {}: {}".format(fileChangesByUser[filenameAuthor].Filename,
+                                        fileChangesByUser[filenameAuthor].Username,
+                                        fileChangesByUser[filenameAuthor].NumberOfChanges))
+                filenameAuthor
+                
     else:
         print('Could not load repository at {} :('.format(repo_path))

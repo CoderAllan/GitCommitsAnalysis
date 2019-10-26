@@ -7,11 +7,12 @@ using SourceCodeAnalysis.Model;
 
 namespace SourceCodeAnalysis.Reporting
 {
-    public class TextFileReport : IReport
+   
+    public class MarkdownReport : IReport
     {
         private string reportFilename;
         private IFileHandling fileHandling;
-        public TextFileReport(IFileHandling fileHandling, string reportFilename)
+        public MarkdownReport(IFileHandling fileHandling, string reportFilename)
         {
             this.fileHandling = fileHandling;
             this.reportFilename = reportFilename;
@@ -19,14 +20,15 @@ namespace SourceCodeAnalysis.Reporting
 
         public void Generate(Dictionary<string, FileStat> fileChanges, Dictionary<string, FileStat> userfileChanges, Dictionary<string, FileStat> folderChanges)
         {
-            Console.WriteLine("Generating Textfile report...");
+            Console.WriteLine("Generating Markdown report...");
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine("# SourceCodeAnalysis\n");
             var fileChangesList = fileChanges.Values.OrderByDescending(fc => fc.ChangeCount).ThenBy(fc => fc.Filename);
             var userfileChangesList = userfileChanges.Values.OrderByDescending(fc => fc.ChangeCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
 
-            var totalChanges = fileChangesList.Sum(fc => fc.ChangeCount);
-            sb.AppendLine($"Total number of changes analyzed: {totalChanges}");
 
+            var totalChanges = fileChangesList.Sum(fc => fc.ChangeCount);
+            sb.AppendLine("## Changes for each subfolder");
             var folderChangesList = folderChanges.Values.OrderByDescending(fc => fc.ChangeCount);
             foreach (var folder in folderChangesList.Take(25))
             {
@@ -35,21 +37,36 @@ namespace SourceCodeAnalysis.Reporting
                 var percentage = string.Format("{0,5:#0.00}", ((double)folderChanges[folder.Filename].ChangeCount / (double)totalChanges) * 100);
                 sb.AppendLine($"{folderName}: {changeCount} ({percentage}%)");
             }
+            sb.AppendLine($"{string.Format("{0,51}", "---------------")} {string.Format("{0,6}", "-----")} {string.Format("{0,7}", "------")}");
+            var total = string.Format("{0,5}", totalChanges);
+            sb.AppendLine($"{string.Format("{0,50}", "Total number of changes analyzed")}: {total} ({string.Format("{0,5:##0.0}", 100)}%)\n");
+
+            sb.AppendLine("---\n");
 
             foreach (var fileChange in fileChangesList.Take(50))
             {
-                sb.AppendLine("");
                 var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
-                sb.AppendLine($"{fileChange.Filename}: {fileChange.ChangeCount} - Lines of code: {linesOfCode}\n");
+                var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
+                sb.AppendLine($"### {fileChange.Filename}\n");
+                sb.AppendLine("| | |");
+                sb.AppendLine("|---:|----:|");
+                sb.AppendLine($"| Changes | {fileChange.ChangeCount} |");
+                sb.AppendLine($"| Lines of code | {linesOfCode} |");
+                sb.AppendLine($"| Cyclomatic Complexity | {cyclomaticComplexity} |");
+                sb.AppendLine();
+
+                sb.AppendLine("__Changes by user:__\n");
+                sb.AppendLine($"| Name | Changes | Percentage |");
+                sb.AppendLine($"|-----:|--------:|-----------:|");
                 foreach (var userfileChange in userfileChangesList.Where(ufc => ufc.Filename == fileChange.Filename))
                 {
                     var username = string.Format("{0,20}", userfileChange.Username);
                     var changeCount = string.Format("{0,3}", userfileChange.ChangeCount);
                     var percentage = string.Format("{0,5:#0.00}", ((double)userfileChange.ChangeCount / (double)fileChange.ChangeCount) * 100);
-                    sb.AppendLine($"    {username}: {changeCount} ({percentage}%)");
+                    sb.AppendLine($"| {username} | {changeCount} | {percentage}% |");
                 }
+                sb.AppendLine();
             }
-
             fileHandling.WriteAllText(reportFilename, sb.ToString());
         }
     }

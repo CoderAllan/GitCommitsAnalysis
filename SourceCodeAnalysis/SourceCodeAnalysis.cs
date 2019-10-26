@@ -2,7 +2,6 @@
 using SourceCodeAnalysis.Analysers;
 using SourceCodeAnalysis.Model;
 using SourceCodeAnalysis.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -11,12 +10,12 @@ namespace SourceCodeAnalysis
     public class SourceCodeAnalysis
     {
         private IFileHandling fileHandling;
-        private IReport report;
+        private IReport[] reports;
 
-        public SourceCodeAnalysis(IFileHandling fileHandling, IReport report)
+        public SourceCodeAnalysis(IFileHandling fileHandling, IReport[] reports)
         {
             this.fileHandling = fileHandling;
-            this.report = report;
+            this.reports = reports;
         }
 
         public void PerformAnalysis(string rootFolder)
@@ -39,6 +38,7 @@ namespace SourceCodeAnalysis
                         {
                             var filename = change.Path;
                             int linesOfCode = 0;
+                            int cyclomaticComplexity = 0;
                             var fullPath = Path.Combine(rootFolder, filename);
                             if (fileHandling.FileExists(fullPath))
                             {
@@ -67,7 +67,7 @@ namespace SourceCodeAnalysis
                             }
                             else
                             {
-                                fileChanges[filename] = new FileStat { Filename = filename, /*CyclomaticComplexity = cyclomaticComplexity, */LinesOfCode = linesOfCode };
+                                fileChanges[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode };
                             }
                             var folderName = getRootFolder(filename);
                             if (folderChanges.ContainsKey(folderName)) { folderChanges[folderName].ChangeCount++; } else { folderChanges[folderName] = new FileStat { Filename = folderName }; }
@@ -76,8 +76,11 @@ namespace SourceCodeAnalysis
                         }
                     }
                 }
-                
-                report.Generate(fileChanges, userfileChanges, folderChanges);
+
+                foreach (var report in reports)
+                {
+                    report.Generate(fileChanges, userfileChanges, folderChanges);
+                }
             }
         }
 
