@@ -25,6 +25,7 @@ namespace SourceCodeAnalysis
                 var fileChanges = new Dictionary<string, FileStat>();
                 var folderChanges = new Dictionary<string, FileStat>();
                 var userfileChanges = new Dictionary<string, FileStat>();
+                var renamedFiles = new Dictionary<string, string>();
                 var cyclomaticComplexityCounter = new CyclomaticComplexityCounter();
                 var linesOfCodeCalculator = new LinesOfCodeCalculator();
                 var simpleLinesOfCodeCalculator = new SimpleLinesOfCodeCalculator();
@@ -36,37 +37,41 @@ namespace SourceCodeAnalysis
                     {
                         foreach (TreeEntryChanges change in repo.Diff.Compare<TreeChanges>(parent.Tree, commit.Tree))
                         {
-                            var filename = change.Path;
                             int linesOfCode = 0;
                             int cyclomaticComplexity = 0;
-                            var fullPath = Path.Combine(rootFolder, filename);
-                            if (fileHandling.FileExists(fullPath))
+                            var fullPath = Path.Combine(rootFolder, change.Path);
+                            if (change.Path != change.OldPath)
                             {
-                                //Console.WriteLine("Filename:" + filename);
-                                var fileContents = fileHandling.ReadFileContent(fullPath);
-                                if (filename.EndsWith(".cs"))
+                                // Console.WriteLine($"Filename old: {change.OldPath} - Path: {change.Path}");
+                                if (fileChanges.ContainsKey(change.OldPath))
                                 {
-                                    //var cyclomaticComplexity = cyclomaticComplexityCounter.Calculate(fileContents);
-                                    linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
-                                }
-                                else
-                                {
-                                    linesOfCode = simpleLinesOfCodeCalculator.Calculate(fileContents);
-                                }
-                            }
-                            if (fileChanges.ContainsKey(change.OldPath))
-                            {
-                                fileChanges[change.OldPath].ChangeCount++;
-                                fileChanges[change.OldPath].LinesOfCode = linesOfCode;
-                                if (change.Path != change.OldPath)
-                                {
-                                    // Console.WriteLine($"Filename old: {change.OldPath} - Path: {change.Path}");
-                                    fileChanges[filename] = fileChanges[change.OldPath];
+                                    fileChanges[change.Path] = fileChanges[change.OldPath];
                                     fileChanges.Remove(change.OldPath);
                                 }
+                                renamedFiles.Add(change.OldPath, change.Path);
+                            }
+                            string filename = renamedFiles.ContainsKey(change.OldPath) ? renamedFiles[change.OldPath] : change.Path;
+
+                            if (fileChanges.ContainsKey(filename))
+                            {
+                                fileChanges[filename].ChangeCount++;
                             }
                             else
                             {
+                                if (fileHandling.FileExists(fullPath))
+                                {
+                                    //Console.WriteLine("Filename:" + filename);
+                                    var fileContents = fileHandling.ReadFileContent(fullPath);
+                                    if (change.Path.EndsWith(".cs"))
+                                    {
+                                        cyclomaticComplexity = cyclomaticComplexityCounter.Calculate(fileContents);
+                                        linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
+                                    }
+                                    else
+                                    {
+                                        linesOfCode = simpleLinesOfCodeCalculator.Calculate(fileContents);
+                                    }
+                                }
                                 fileChanges[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode };
                             }
                             var folderName = getRootFolder(filename);

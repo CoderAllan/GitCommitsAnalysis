@@ -40,7 +40,8 @@ namespace SourceCodeAnalysis.Reporting
             {
                 sb.AppendLine("");
                 var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
-                sb.AppendLine($"{fileChange.Filename}: {fileChange.ChangeCount} - Lines of code: {linesOfCode}\n");
+                var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
+                sb.AppendLine($"{fileChange.Filename}: {fileChange.ChangeCount} - Lines of code: {linesOfCode} - Cyclomatic Complexity: {cyclomaticComplexity}\n");
                 foreach (var userfileChange in userfileChangesList.Where(ufc => ufc.Filename == fileChange.Filename))
                 {
                     var username = string.Format("{0,20}", userfileChange.Username);

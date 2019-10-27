@@ -46,7 +46,7 @@ namespace SourceCodeAnalysis.Reporting
             foreach (var fileChange in fileChangesList.Take(50))
             {
                 var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
-                var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
+                var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
                 sb.AppendLine($"### {fileChange.Filename}\n");
                 sb.AppendLine("| | |");
                 sb.AppendLine("|---:|----:|");
