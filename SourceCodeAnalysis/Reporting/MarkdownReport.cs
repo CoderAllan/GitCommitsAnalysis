@@ -11,10 +11,10 @@ namespace SourceCodeAnalysis.Reporting
     public class MarkdownReport : IReport
     {
         private string reportFilename;
-        private IFileHandling fileHandling;
-        public MarkdownReport(IFileHandling fileHandling, string reportFilename)
+        private ISystemIO systemIO;
+        public MarkdownReport(ISystemIO systemIO, string reportFilename)
         {
-            this.fileHandling = fileHandling;
+            this.systemIO = systemIO;
             this.reportFilename = reportFilename;
         }
 
@@ -67,7 +67,7 @@ namespace SourceCodeAnalysis.Reporting
                 }
                 sb.AppendLine();
             }
-            fileHandling.WriteAllText(reportFilename, sb.ToString());
+            systemIO.WriteAllText(reportFilename, sb.ToString());
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using SourceCodeAnalysis.Interfaces;
 using SourceCodeAnalysis.Reporting;
 using System.Collections.Generic;
+using CommandLine;
 
 namespace SourceCodeAnalysis
 {
@@ -8,14 +9,14 @@ namespace SourceCodeAnalysis
     {
         public static void Main(string[] args)
         {
-            var fileHandling = new FileHandling();
+            var fileHandling = new SystemIO();
             var textFileReport = new TextFileReport(fileHandling, @"D:\Temp\SourceCodeAnalysisReport.txt");
             var markdownReport = new MarkdownReport(fileHandling, @"D:\Temp\SourceCodeAnalysisReport.md");
             
             var reports = new List<IReport> { textFileReport, markdownReport};
             var sourceCodeAnalysis = new SourceCodeAnalysis(fileHandling, reports.ToArray());
             
-            var rootFolder = "D:\\Src\\AssetValueService";
+            var rootFolder = "D:\\Src\\SourceCodeAnalysis";
             sourceCodeAnalysis.PerformAnalysis(rootFolder);
         }
 

@@ -3,7 +3,7 @@ using SourceCodeAnalysis.Interfaces;
 
 namespace SourceCodeAnalysis
 {
-    public class FileHandling : IFileHandling
+    public class SystemIO : ISystemIO
     {
         public bool FileExists(string filename)
         {

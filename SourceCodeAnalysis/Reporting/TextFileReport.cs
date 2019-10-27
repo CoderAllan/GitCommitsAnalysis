@@ -10,10 +10,10 @@ namespace SourceCodeAnalysis.Reporting
     public class TextFileReport : IReport
     {
         private string reportFilename;
-        private IFileHandling fileHandling;
-        public TextFileReport(IFileHandling fileHandling, string reportFilename)
+        private ISystemIO systemIO;
+        public TextFileReport(ISystemIO systemIO, string reportFilename)
         {
-            this.fileHandling = fileHandling;
+            this.systemIO = systemIO;
             this.reportFilename = reportFilename;
         }
 
@@ -50,7 +50,7 @@ namespace SourceCodeAnalysis.Reporting
                 }
             }
 
-            fileHandling.WriteAllText(reportFilename, sb.ToString());
+            systemIO.WriteAllText(reportFilename, sb.ToString());
         }
     }
 }

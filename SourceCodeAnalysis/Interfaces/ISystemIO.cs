@@ -1,6 +1,6 @@
 ﻿namespace SourceCodeAnalysis.Interfaces
 {
-    public interface IFileHandling
+    public interface ISystemIO
     {
         string ReadFileContent(string filename);
         void WriteAllText(string filename, string contents);
