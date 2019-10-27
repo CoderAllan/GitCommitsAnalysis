@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Newtonsoft.Json;
 using SourceCodeAnalysis.Interfaces;
 using SourceCodeAnalysis.Model;
 
@@ -19,7 +18,8 @@ namespace SourceCodeAnalysis.Reporting
 
         public void Generate(Dictionary<string, FileStat> fileChanges, Dictionary<string, FileStat> userfileChanges, Dictionary<string, FileStat> folderChanges)
         {
-            Console.WriteLine("Json report not implemented yet...");
+            Console.WriteLine("Generating Json file...");
+            systemIO.WriteAllText($"{reportFilename}.json", JsonConvert.SerializeObject(new { fileChanges, userfileChanges, folderChanges }));
         }
     }
 }
