@@ -19,5 +19,10 @@ namespace SourceCodeAnalysis
         {
             File.WriteAllText(filename, contents);
         }
+
+        public string GetPathWitoutExtension(string filename)
+        {
+            return Path.GetFileNameWithoutExtension(filename);
+        }
     }
 }

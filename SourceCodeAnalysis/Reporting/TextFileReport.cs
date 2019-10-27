@@ -50,7 +50,7 @@ namespace SourceCodeAnalysis.Reporting
                 }
             }
 
-            systemIO.WriteAllText(reportFilename, sb.ToString());
+            systemIO.WriteAllText($"{reportFilename}.txt", sb.ToString());
         }
     }
 }

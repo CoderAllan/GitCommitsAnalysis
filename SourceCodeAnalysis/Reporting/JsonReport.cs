@@ -19,7 +19,7 @@ namespace SourceCodeAnalysis.Reporting
 
         public void Generate(Dictionary<string, FileStat> fileChanges, Dictionary<string, FileStat> userfileChanges, Dictionary<string, FileStat> folderChanges)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Json report not implemented yet...");
         }
     }
 }

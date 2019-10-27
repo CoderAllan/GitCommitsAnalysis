@@ -67,7 +67,7 @@ namespace SourceCodeAnalysis.Reporting
                 }
                 sb.AppendLine();
             }
-            systemIO.WriteAllText(reportFilename, sb.ToString());
+            systemIO.WriteAllText($"{reportFilename}.md", sb.ToString());
         }
     }
 }

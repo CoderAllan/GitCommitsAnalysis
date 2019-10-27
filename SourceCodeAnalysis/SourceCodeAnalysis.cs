@@ -10,9 +10,9 @@ namespace SourceCodeAnalysis
     public class SourceCodeAnalysis
     {
         private ISystemIO fileHandling;
-        private IReport[] reports;
+        private IEnumerable<IReport> reports;
 
-        public SourceCodeAnalysis(ISystemIO fileHandling, IReport[] reports)
+        public SourceCodeAnalysis(ISystemIO fileHandling, IEnumerable<IReport> reports)
         {
             this.fileHandling = fileHandling;
             this.reports = reports;
