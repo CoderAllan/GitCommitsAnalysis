@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Linq;
 
 namespace SourceCodeAnalysis.Analysers
 {
@@ -7,8 +7,8 @@ namespace SourceCodeAnalysis.Analysers
     {
         public int Calculate(string fileContents)
         {
-            var lines = fileContents.Split("\n", StringSplitOptions.RemoveEmptyEntries);
-            return lines.Length;
+            var lines = fileContents.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+            return lines.Where(l => !l.Trim().StartsWith("using")).ToList().Count();
         }
     }
 }

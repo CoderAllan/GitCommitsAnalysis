@@ -22,15 +22,17 @@ namespace SourceCodeAnalysis.Analysers
                 {
                         MetadataReference.CreateFromFile(typeof (object).Assembly.Location)
                 });
-            //options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false, null, null, null, new string[] { "System", "System.Threading.Tasks" }));
 
             var model = compilation.GetSemanticModel(tree, true);
             var syntaxNode = tree
                 .GetRoot()
                 .DescendantNodes()
-                .OfType<MethodDeclarationSyntax>()
-                .First();
-            var result = Calculate(syntaxNode, model);
+                .OfType<MethodDeclarationSyntax>();
+            int result = 1;
+            foreach(var node in syntaxNode)
+            {
+                result += Calculate(node, model);
+            }
             return result;
         }
 
