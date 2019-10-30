@@ -7,29 +7,31 @@ using System;
 
 namespace SourceCodeAnalysis
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
-            var parser = new Parser(with => with.HelpWriter = null);
-            var parserResult = parser.ParseArguments<Options>(args);
-            parserResult.WithParsed(opts =>
+            using (var parser = new Parser(with => with.HelpWriter = null))
             {
-                var systemIO = new SystemIO();
-                var reports = getReportGenerators(opts, systemIO);
-                var sourceCodeAnalysis = new SourceCodeAnalysis(systemIO, reports);
-
-                sourceCodeAnalysis.PerformAnalysis(opts.RootFolder);
-            }).WithNotParsed(x =>
-            {
-                var helpText = HelpText.AutoBuild(parserResult, h =>
+                var parserResult = parser.ParseArguments<Options>(args);
+                parserResult.WithParsed(opts =>
                 {
-                    h.AutoHelp = false; //hide --help
+                    var systemIO = new SystemIO();
+                    var reports = getReportGenerators(opts, systemIO);
+                    var sourceCodeAnalysis = new SourceCodeAnalysis(systemIO, reports);
+
+                    sourceCodeAnalysis.PerformAnalysis(opts.RootFolder);
+                }).WithNotParsed(x =>
+                {
+                    var helpText = HelpText.AutoBuild(parserResult, h =>
+                    {
+                        h.AutoHelp = false; //hide --help
                     h.AutoVersion = false;   //hide --version	
                     return HelpText.DefaultParsingErrorsHandler(parserResult, h);
-                }, e => e);
-                Console.WriteLine(helpText);
-            });
+                    }, e => e);
+                    Console.WriteLine(helpText);
+                });
+            }
         }
 
         private static List<IReport> getReportGenerators(Options opts, ISystemIO systemIO)
@@ -54,6 +56,10 @@ namespace SourceCodeAnalysis
                 if (format == OutputFormat.Json)
                 {
                     reportGenerators.Add(new JsonReport(systemIO, filename));
+                }
+                if (format == OutputFormat.HTML)
+                {
+                    reportGenerators.Add(new HTMLReport(systemIO, filename));
                 }
             }
             return reportGenerators;

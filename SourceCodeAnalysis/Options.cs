@@ -25,6 +25,7 @@ namespace SourceCodeAnalysis
     {
         Text,
         Markdown,
-        Json
+        Json,
+        HTML
     }
 }

@@ -48,7 +48,10 @@ namespace SourceCodeAnalysis
                                     fileChanges[change.Path] = fileChanges[change.OldPath];
                                     fileChanges.Remove(change.OldPath);
                                 }
-                                renamedFiles.Add(change.OldPath, change.Path);
+                                if (!renamedFiles.ContainsKey(change.OldPath))
+                                {
+                                    renamedFiles.Add(change.OldPath, change.Path);
+                                }
                             }
                             string filename = renamedFiles.ContainsKey(change.OldPath) ? renamedFiles[change.OldPath] : change.Path;
 
