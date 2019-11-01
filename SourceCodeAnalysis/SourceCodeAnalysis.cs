@@ -1,7 +1,8 @@
 ﻿using LibGit2Sharp;
 using SourceCodeAnalysis.Analysers;
-using SourceCodeAnalysis.Model;
 using SourceCodeAnalysis.Interfaces;
+using SourceCodeAnalysis.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -31,8 +32,8 @@ namespace SourceCodeAnalysis
                 var simpleLinesOfCodeCalculator = new SimpleLinesOfCodeCalculator();
                 foreach (var commit in repo.Commits)
                 {
-                    //Console.WriteLine($"{counter} commit: {commit.Author.Name}, {commit.MessageShort}");
                     var username = commit.Author.Name;
+                    var commitDate = commit.Author.When.UtcDateTime;
                     foreach (var parent in commit.Parents)
                     {
                         foreach (TreeEntryChanges change in repo.Diff.Compare<TreeChanges>(parent.Tree, commit.Tree))
@@ -42,7 +43,6 @@ namespace SourceCodeAnalysis
                             var fullPath = Path.Combine(rootFolder, change.Path);
                             if (change.Path != change.OldPath)
                             {
-                                // Console.WriteLine($"Filename old: {change.OldPath} - Path: {change.Path}");
                                 if (fileChanges.ContainsKey(change.OldPath))
                                 {
                                     fileChanges[change.Path] = fileChanges[change.OldPath];
@@ -63,9 +63,8 @@ namespace SourceCodeAnalysis
                             {
                                 if (fileHandling.FileExists(fullPath))
                                 {
-                                    //Console.WriteLine("Filename:" + filename);
                                     var fileContents = fileHandling.ReadFileContent(fullPath);
-                                    if (change.Path.EndsWith(".cs"))
+                                    if (change.Path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
                                     {
                                         cyclomaticComplexity = cyclomaticComplexityCounter.Calculate(fileContents);
                                         linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
@@ -77,10 +76,15 @@ namespace SourceCodeAnalysis
                                 }
                                 fileChanges[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode };
                             }
+                            fileChanges[filename].CommitDates.Add(commitDate);
+
                             var folderName = getRootFolder(filename);
                             if (folderChanges.ContainsKey(folderName)) { folderChanges[folderName].ChangeCount++; } else { folderChanges[folderName] = new FileStat { Filename = folderName }; }
-                            var usernameFilename = new UsernameFilename { Filename = filename, Username = username };
-                            if (userfileChanges.ContainsKey(usernameFilename.DictKey)) { userfileChanges[usernameFilename.DictKey].ChangeCount++; } else { userfileChanges[usernameFilename.DictKey] = new FileStat { Filename = filename, Username = username }; }
+                            folderChanges[folderName].CommitDates.Add(commitDate);
+
+                            var usernameFilename = UsernameFilename.GetDictKey(filename, username);
+                            if (userfileChanges.ContainsKey(usernameFilename)) { userfileChanges[usernameFilename].ChangeCount++; } else { userfileChanges[usernameFilename] = new FileStat { Filename = filename, Username = username }; }
+                            userfileChanges[usernameFilename].CommitDates.Add(commitDate);
                         }
                     }
                 }
@@ -95,7 +99,7 @@ namespace SourceCodeAnalysis
         private static string getRootFolder(string filename)
         {
             var folderName = Path.GetDirectoryName(filename);
-            int pos = folderName.IndexOf("\\");
+            int pos = folderName.IndexOf("\\", StringComparison.OrdinalIgnoreCase);
             if (pos > -1)
             {
                 folderName = folderName.Substring(0, pos);
