@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SourceCodeAnalysis.Interfaces;
-using SourceCodeAnalysis.Model;
+using GitCommitsAnalysis.Interfaces;
+using GitCommitsAnalysis.Model;
 
-namespace SourceCodeAnalysis.Reporting
+namespace GitCommitsAnalysis.Reporting
 {
     public class HTMLReport : IReport
     {
@@ -66,7 +66,7 @@ namespace SourceCodeAnalysis.Reporting
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
             sb.AppendLine("<div class=\"container\">");
-            sb.AppendLine("<h1 id = \"sourcecodeanalysis\" >SourceCodeAnalysis</h1>");
+            sb.AppendLine("<h1 id = \"GitCommitsAnalysis\" >GitCommitsAnalysis</h1>");
         }
 
         private void AddPieChartJavascript(StringBuilder sb)

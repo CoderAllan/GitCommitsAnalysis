@@ -3,4 +3,4 @@
 // Project-level suppressions either have no target or are given
 // a specific target and scoped to a namespace, type, member, etc.
 
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>", Scope = "member", Target = "~M:SourceCodeAnalysis.Reporting.HTMLReport.Generate(System.Collections.Generic.Dictionary{System.String,SourceCodeAnalysis.Model.FileStat},System.Collections.Generic.Dictionary{System.String,SourceCodeAnalysis.Model.FileStat},System.Collections.Generic.Dictionary{System.String,SourceCodeAnalysis.Model.FileStat})")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>", Scope = "member", Target = "~M:GitCommitsAnalysis.Reporting.HTMLReport.Generate(System.Collections.Generic.Dictionary{System.String,GitCommitsAnalysis.Model.FileStat},System.Collections.Generic.Dictionary{System.String,GitCommitsAnalysis.Model.FileStat},System.Collections.Generic.Dictionary{System.String,GitCommitsAnalysis.Model.FileStat})")]

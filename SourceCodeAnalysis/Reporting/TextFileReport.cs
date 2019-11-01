@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SourceCodeAnalysis.Interfaces;
-using SourceCodeAnalysis.Model;
+using GitCommitsAnalysis.Interfaces;
+using GitCommitsAnalysis.Model;
 
-namespace SourceCodeAnalysis.Reporting
+namespace GitCommitsAnalysis.Reporting
 {
     public class TextFileReport : IReport
     {

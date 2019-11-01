@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using SourceCodeAnalysis.Interfaces;
+using GitCommitsAnalysis.Interfaces;
 
-namespace SourceCodeAnalysis
+namespace GitCommitsAnalysis
 {
     public class SystemIO : ISystemIO
     {

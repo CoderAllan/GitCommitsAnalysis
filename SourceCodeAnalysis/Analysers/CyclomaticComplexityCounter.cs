@@ -2,7 +2,7 @@
  * This class was originally created by:
  * https://github.com/jjrdk/ArchiMetrics
  */
-namespace SourceCodeAnalysis.Analysers
+namespace GitCommitsAnalysis.Analysers
 {
     using System.Linq;
     using Microsoft.CodeAnalysis;

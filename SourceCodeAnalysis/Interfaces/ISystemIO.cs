@@ -1,4 +1,4 @@
-﻿namespace SourceCodeAnalysis.Interfaces
+﻿namespace GitCommitsAnalysis.Interfaces
 {
     public interface ISystemIO
     {

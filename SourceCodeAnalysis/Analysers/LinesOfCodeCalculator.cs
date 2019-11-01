@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace SourceCodeAnalysis.Analysers
+namespace GitCommitsAnalysis.Analysers
 {
 
     public class LinesOfCodeCalculator

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using SourceCodeAnalysis.Interfaces;
-using SourceCodeAnalysis.Model;
+using GitCommitsAnalysis.Interfaces;
+using GitCommitsAnalysis.Model;
 
-namespace SourceCodeAnalysis.Reporting
+namespace GitCommitsAnalysis.Reporting
 {
     public class JsonReport : IReport
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SourceCodeAnalysis.Model
+namespace GitCommitsAnalysis.Model
 {
     public class UsernameFilename
     {

@@ -1,7 +1,7 @@
-﻿using SourceCodeAnalysis.Model;
+﻿using GitCommitsAnalysis.Model;
 using System.Collections.Generic;
 
-namespace SourceCodeAnalysis.Interfaces
+namespace GitCommitsAnalysis.Interfaces
 {
     public interface IReport
     {

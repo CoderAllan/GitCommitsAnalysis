@@ -1,11 +1,11 @@
-﻿using SourceCodeAnalysis.Interfaces;
-using SourceCodeAnalysis.Reporting;
+﻿using GitCommitsAnalysis.Interfaces;
+using GitCommitsAnalysis.Reporting;
 using System.Collections.Generic;
 using CommandLine;
 using CommandLine.Text;
 using System;
 
-namespace SourceCodeAnalysis
+namespace GitCommitsAnalysis
 {
     public static class Program
     {
@@ -18,9 +18,9 @@ namespace SourceCodeAnalysis
                 {
                     var systemIO = new SystemIO();
                     var reports = getReportGenerators(opts, systemIO);
-                    var sourceCodeAnalysis = new SourceCodeAnalysis(systemIO, reports);
+                    var GitCommitsAnalysis = new GitCommitsAnalysis(systemIO, reports);
 
-                    sourceCodeAnalysis.PerformAnalysis(opts.RootFolder);
+                    GitCommitsAnalysis.PerformAnalysis(opts.RootFolder);
                 }).WithNotParsed(x =>
                 {
                     var helpText = HelpText.AutoBuild(parserResult, h =>
@@ -39,7 +39,7 @@ namespace SourceCodeAnalysis
             var reportGenerators = new List<IReport>();
             foreach (var format in opts.OutputFormat)
             {
-                string outputFilename = "SourcecodeAnalysisReport";
+                string outputFilename = "GitCommitsAnalysisReport";
                 if (!string.IsNullOrEmpty(opts.ReportFilename))
                 {
                     outputFilename = systemIO.GetPathWitoutExtension(opts.ReportFilename);

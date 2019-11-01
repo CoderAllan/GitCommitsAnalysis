@@ -1,4 +1,4 @@
-﻿namespace SourceCodeAnalysis.Model
+﻿namespace GitCommitsAnalysis.Model
 {
     public class ScatterPoint
     {

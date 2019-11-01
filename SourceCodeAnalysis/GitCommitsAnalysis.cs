@@ -1,19 +1,19 @@
 ﻿using LibGit2Sharp;
-using SourceCodeAnalysis.Analysers;
-using SourceCodeAnalysis.Interfaces;
-using SourceCodeAnalysis.Model;
+using GitCommitsAnalysis.Analysers;
+using GitCommitsAnalysis.Interfaces;
+using GitCommitsAnalysis.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace SourceCodeAnalysis
+namespace GitCommitsAnalysis
 {
-    public class SourceCodeAnalysis
+    public class GitCommitsAnalysis
     {
         private ISystemIO fileHandling;
         private IEnumerable<IReport> reports;
 
-        public SourceCodeAnalysis(ISystemIO fileHandling, IEnumerable<IReport> reports)
+        public GitCommitsAnalysis(ISystemIO fileHandling, IEnumerable<IReport> reports)
         {
             this.fileHandling = fileHandling;
             this.reports = reports;

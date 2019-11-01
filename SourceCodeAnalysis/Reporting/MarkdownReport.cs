@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SourceCodeAnalysis.Interfaces;
-using SourceCodeAnalysis.Model;
+using GitCommitsAnalysis.Interfaces;
+using GitCommitsAnalysis.Model;
 
-namespace SourceCodeAnalysis.Reporting
+namespace GitCommitsAnalysis.Reporting
 {
    
     public class MarkdownReport : IReport
@@ -22,7 +22,7 @@ namespace SourceCodeAnalysis.Reporting
         {
             Console.WriteLine("Generating Markdown report...");
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("# SourceCodeAnalysis\n");
+            sb.AppendLine("# GitCommitsAnalysis\n");
             var fileChangesList = fileChanges.Values.OrderByDescending(fc => fc.ChangeCount).ThenBy(fc => fc.Filename);
             var userfileChangesList = userfileChanges.Values.OrderByDescending(fc => fc.ChangeCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
 
