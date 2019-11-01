@@ -1,4 +1,4 @@
-# SourcecodeAnalysis
+# GitCommitsAnalysis
 
 This tool can be used to generate a report showing the temporal distribution of you commits and the size and complexity of the codefiles in a Git repository.
 
@@ -31,8 +31,8 @@ The HTML report is the most detailed with pie charts and scatter plots.
 ## Commandline parameters
 
 ```text
-SourceCodeAnalysis 1.0.0
-Copyright (C) 2019 SourceCodeAnalysis
+GitCommitsAnalysis 1.0.0
+Copyright (C) 2019 GitCommitsAnalysis
 
 ERROR(S):
   Required option 'r, rootfolder' is missing.
@@ -61,6 +61,8 @@ The calculation of the Cyclomatic Complexity i found over at [Jakob Reimers Arch
 [LibGit2Sharp](https://www.nuget.org/packages/LibGit2Sharp/) for reading the Git repository.
 
 [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/) for generating the Json dump of the analysis data.
+
+[Google charts](https://developers.google.com/chart) for displaying the pie chart and the scatter charts in the HTML report.
 
 ## Screenshots
 
