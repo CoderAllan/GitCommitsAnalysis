@@ -16,10 +16,10 @@ namespace GitCommitsAnalysis.Reporting
             this.reportFilename = reportFilename;
         }
 
-        public void Generate(Dictionary<string, FileStat> fileChanges, Dictionary<string, FileStat> userfileChanges, Dictionary<string, FileStat> folderChanges)
+        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits)
         {
             Console.WriteLine("Generating Json file...");
-            systemIO.WriteAllText($"{reportFilename}.json", JsonConvert.SerializeObject(new { fileChanges, userfileChanges, folderChanges }));
+            systemIO.WriteAllText($"{reportFilename}.json", JsonConvert.SerializeObject(new { fileCommits, userfileCommits, folderCommits }));
         }
     }
 }

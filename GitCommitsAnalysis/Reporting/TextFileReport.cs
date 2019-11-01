@@ -17,36 +17,36 @@ namespace GitCommitsAnalysis.Reporting
             this.reportFilename = reportFilename;
         }
 
-        public void Generate(Dictionary<string, FileStat> fileChanges, Dictionary<string, FileStat> userfileChanges, Dictionary<string, FileStat> folderChanges)
+        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits)
         {
             Console.WriteLine("Generating Textfile report...");
             StringBuilder sb = new StringBuilder();
-            var fileChangesList = fileChanges.Values.OrderByDescending(fc => fc.ChangeCount).ThenBy(fc => fc.Filename);
-            var userfileChangesList = userfileChanges.Values.OrderByDescending(fc => fc.ChangeCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
+            var fileCommitsList = fileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
+            var userfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
 
-            var totalChanges = fileChangesList.Sum(fc => fc.ChangeCount);
-            sb.AppendLine($"Total number of changes analyzed: {totalChanges}");
+            var totalCommits = fileCommitsList.Sum(fc => fc.CommitCount);
+            sb.AppendLine($"Total number of Commits analyzed: {totalCommits}");
 
-            var folderChangesList = folderChanges.Values.OrderByDescending(fc => fc.ChangeCount);
-            foreach (var folder in folderChangesList.Take(25))
+            var folderCommitsList = folderCommits.Values.OrderByDescending(fc => fc.CommitCount);
+            foreach (var folder in folderCommitsList.Take(25))
             {
                 var folderName = string.Format("{0,50}", folder.Filename);
-                var changeCount = string.Format("{0,5}", folderChanges[folder.Filename].ChangeCount);
-                var percentage = string.Format("{0,5:#0.00}", ((double)folderChanges[folder.Filename].ChangeCount / (double)totalChanges) * 100);
+                var changeCount = string.Format("{0,5}", folderCommits[folder.Filename].CommitCount);
+                var percentage = string.Format("{0,5:#0.00}", ((double)folderCommits[folder.Filename].CommitCount / (double)totalCommits) * 100);
                 sb.AppendLine($"{folderName}: {changeCount} ({percentage}%)");
             }
 
-            foreach (var fileChange in fileChangesList.Take(50))
+            foreach (var fileChange in fileCommitsList.Take(50))
             {
                 sb.AppendLine("");
                 var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
                 var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
-                sb.AppendLine($"{fileChange.Filename}: {fileChange.ChangeCount} - Lines of code: {linesOfCode} - Cyclomatic Complexity: {cyclomaticComplexity}\n");
-                foreach (var userfileChange in userfileChangesList.Where(ufc => ufc.Filename == fileChange.Filename))
+                sb.AppendLine($"{fileChange.Filename}: {fileChange.CommitCount} - Lines of code: {linesOfCode} - Cyclomatic Complexity: {cyclomaticComplexity}\n");
+                foreach (var userfileChange in userfileCommitsList.Where(ufc => ufc.Filename == fileChange.Filename))
                 {
                     var username = string.Format("{0,20}", userfileChange.Username);
-                    var changeCount = string.Format("{0,3}", userfileChange.ChangeCount);
-                    var percentage = string.Format("{0,5:#0.00}", ((double)userfileChange.ChangeCount / (double)fileChange.ChangeCount) * 100);
+                    var changeCount = string.Format("{0,3}", userfileChange.CommitCount);
+                    var percentage = string.Format("{0,5:#0.00}", ((double)userfileChange.CommitCount / (double)fileChange.CommitCount) * 100);
                     sb.AppendLine($"    {username}: {changeCount} ({percentage}%)");
                 }
             }

@@ -23,9 +23,9 @@ namespace GitCommitsAnalysis
         {
             using (var repo = new Repository(rootFolder))
             {
-                var fileChanges = new Dictionary<string, FileStat>();
-                var folderChanges = new Dictionary<string, FileStat>();
-                var userfileChanges = new Dictionary<string, FileStat>();
+                var fileCommits = new Dictionary<string, FileStat>();
+                var folderCommits = new Dictionary<string, FileStat>();
+                var userfileCommits = new Dictionary<string, FileStat>();
                 var renamedFiles = new Dictionary<string, string>();
                 var cyclomaticComplexityCounter = new CyclomaticComplexityCounter();
                 var linesOfCodeCalculator = new LinesOfCodeCalculator();
@@ -43,10 +43,10 @@ namespace GitCommitsAnalysis
                             var fullPath = Path.Combine(rootFolder, change.Path);
                             if (change.Path != change.OldPath)
                             {
-                                if (fileChanges.ContainsKey(change.OldPath))
+                                if (fileCommits.ContainsKey(change.OldPath))
                                 {
-                                    fileChanges[change.Path] = fileChanges[change.OldPath];
-                                    fileChanges.Remove(change.OldPath);
+                                    fileCommits[change.Path] = fileCommits[change.OldPath];
+                                    fileCommits.Remove(change.OldPath);
                                 }
                                 if (!renamedFiles.ContainsKey(change.OldPath))
                                 {
@@ -55,9 +55,9 @@ namespace GitCommitsAnalysis
                             }
                             string filename = renamedFiles.ContainsKey(change.OldPath) ? renamedFiles[change.OldPath] : change.Path;
 
-                            if (fileChanges.ContainsKey(filename))
+                            if (fileCommits.ContainsKey(filename))
                             {
-                                fileChanges[filename].ChangeCount++;
+                                fileCommits[filename].CommitCount++;
                             }
                             else
                             {
@@ -74,24 +74,24 @@ namespace GitCommitsAnalysis
                                         linesOfCode = simpleLinesOfCodeCalculator.Calculate(fileContents);
                                     }
                                 }
-                                fileChanges[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode };
+                                fileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode };
                             }
-                            fileChanges[filename].CommitDates.Add(commitDate);
+                            fileCommits[filename].CommitDates.Add(commitDate);
 
                             var folderName = getRootFolder(filename);
-                            if (folderChanges.ContainsKey(folderName)) { folderChanges[folderName].ChangeCount++; } else { folderChanges[folderName] = new FileStat { Filename = folderName }; }
-                            folderChanges[folderName].CommitDates.Add(commitDate);
+                            if (folderCommits.ContainsKey(folderName)) { folderCommits[folderName].CommitCount++; } else { folderCommits[folderName] = new FileStat { Filename = folderName }; }
+                            folderCommits[folderName].CommitDates.Add(commitDate);
 
                             var usernameFilename = UsernameFilename.GetDictKey(filename, username);
-                            if (userfileChanges.ContainsKey(usernameFilename)) { userfileChanges[usernameFilename].ChangeCount++; } else { userfileChanges[usernameFilename] = new FileStat { Filename = filename, Username = username }; }
-                            userfileChanges[usernameFilename].CommitDates.Add(commitDate);
+                            if (userfileCommits.ContainsKey(usernameFilename)) { userfileCommits[usernameFilename].CommitCount++; } else { userfileCommits[usernameFilename] = new FileStat { Filename = filename, Username = username }; }
+                            userfileCommits[usernameFilename].CommitDates.Add(commitDate);
                         }
                     }
                 }
 
                 foreach (var report in reports)
                 {
-                    report.Generate(fileChanges, userfileChanges, folderChanges);
+                    report.Generate(fileCommits, userfileCommits, folderCommits);
                 }
             }
         }

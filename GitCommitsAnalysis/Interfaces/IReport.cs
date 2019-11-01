@@ -5,6 +5,6 @@ namespace GitCommitsAnalysis.Interfaces
 {
     public interface IReport
     {
-        void Generate(Dictionary<string, FileStat> fileChanges, Dictionary<string, FileStat> userfileChanges, Dictionary<string, FileStat> folderChanges);
+        void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits);
     }
 }

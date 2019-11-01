@@ -12,11 +12,11 @@ namespace GitCommitsAnalysis.Reporting
         private string reportFilename;
         private ISystemIO systemIO;
 
-        private IOrderedEnumerable<FileStat> fileChangesList;
-        private IOrderedEnumerable<FileStat> userfileChangesList;
-        private IOrderedEnumerable<FileStat> folderChangesList;
+        private IOrderedEnumerable<FileStat> fileCommitsList;
+        private IOrderedEnumerable<FileStat> userfileCommitsList;
+        private IOrderedEnumerable<FileStat> folderCommitsList;
         private Dictionary<string, int> userNameKey = new Dictionary<string, int>();
-        private Dictionary<string, FileStat> folderChanges;
+        private Dictionary<string, FileStat> folderCommits;
 
         public HTMLReport(ISystemIO systemIO, string reportFilename)
         {
@@ -24,29 +24,29 @@ namespace GitCommitsAnalysis.Reporting
             this.reportFilename = reportFilename;
         }
 
-        public void Generate(Dictionary<string, FileStat> fileChanges, Dictionary<string, FileStat> userfileChanges, Dictionary<string, FileStat> folderChanges)
+        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits)
         {
             Console.WriteLine("Generating HTML report...");
-            if (fileChanges == null) throw new ArgumentException("Parameter fileChanges is null.", nameof(fileChanges));
-            if (userfileChanges == null) throw new ArgumentException("Parameter userfileChanges is null.", nameof(userfileChanges));
-            if (folderChanges == null) throw new ArgumentException("Parameter folderChanges is null.", nameof(folderChanges));
-            this.fileChangesList = fileChanges.Values.OrderByDescending(fc => fc.ChangeCount).ThenBy(fc => fc.Filename);
-            this.userfileChangesList = userfileChanges.Values.OrderByDescending(fc => fc.ChangeCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
+            if (fileCommits == null) throw new ArgumentException("Parameter fileCommits is null.", nameof(fileCommits));
+            if (userfileCommits == null) throw new ArgumentException("Parameter userfileCommits is null.", nameof(userfileCommits));
+            if (folderCommits == null) throw new ArgumentException("Parameter folderCommits is null.", nameof(folderCommits));
+            this.fileCommitsList = fileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
+            this.userfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
             var key = 1;
-            foreach (var username in userfileChanges.Values.Select(fc => fc.Username).Distinct().OrderBy(un => un))
+            foreach (var username in userfileCommits.Values.Select(fc => fc.Username).Distinct().OrderBy(un => un))
             {
                 userNameKey.Add(username, key++);
             };
-            this.folderChanges = folderChanges;
-            this.folderChangesList = folderChanges.Values.OrderByDescending(fc => fc.ChangeCount);
+            this.folderCommits = folderCommits;
+            this.folderCommitsList = folderCommits.Values.OrderByDescending(fc => fc.CommitCount);
 
             StringBuilder sb = new StringBuilder();
             AddHeader(sb);
-            AddSectionChangesForEachMonth(sb);
+            AddSectionCommitsForEachMonth(sb);
             var sectionCounter = 1;
-            foreach (var fileChange in fileChangesList.Take(50))
+            foreach (var fileChange in fileCommitsList.Take(50))
             {
-                AddSectionChangesForEachFile(sb, fileChange, sectionCounter++);
+                AddSectionCommitsForEachFile(sb, fileChange, sectionCounter++);
             }
             sb.AppendLine("</div>");
 
@@ -75,35 +75,35 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("google.charts.load('current', { 'packages':['corechart']});");
             sb.AppendLine("google.charts.setOnLoadCallback(drawChart);");
             sb.AppendLine("function drawChart() {");
-            sb.AppendLine("   var data = google.visualization.arrayToDataTable([['Folder', 'Changes'], ");
-            foreach (var folder in folderChangesList.Take(25))
+            sb.AppendLine("   var data = google.visualization.arrayToDataTable([['Folder', 'Commits'], ");
+            foreach (var folder in folderCommitsList.Take(25))
             {
-                sb.AppendLine($"      ['{folder.Filename}', {folder.ChangeCount}],");
+                sb.AppendLine($"      ['{folder.Filename}', {folder.CommitCount}],");
             }
             sb.AppendLine("   ]);");
-            sb.AppendLine("   var options = { title: 'Changes for each subfolder' }; ");
+            sb.AppendLine("   var options = { title: 'Commits for each subfolder' }; ");
             sb.AppendLine("   var chart = new google.visualization.PieChart(document.getElementById('piechart'));");
             sb.AppendLine("   chart.draw(data, options);");
             sb.AppendLine("}");
             sb.AppendLine("</script>");
         }
 
-        private void AddSectionChangesForEachMonth(StringBuilder sb)
+        private void AddSectionCommitsForEachMonth(StringBuilder sb)
         {
-            var totalChanges = fileChangesList.Sum(fc => fc.ChangeCount);
+            var totalCommits = fileCommitsList.Sum(fc => fc.CommitCount);
             sb.AppendLine("<div class=\"row\">");
             sb.AppendLine("<div class=\"col-md-6\">");
-            sb.AppendLine("<h2>Changes for each subfolder</h2>");
+            sb.AppendLine("<h2>Commits for each subfolder</h2>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
-            sb.AppendLine("<tr><th class=\"text-right\">Folder</th><th class=\"text-right\">Changes</th></tr>");
-            foreach (var folder in folderChangesList.Take(25))
+            sb.AppendLine("<tr><th class=\"text-right\">Folder</th><th class=\"text-right\">Commits</th></tr>");
+            foreach (var folder in folderCommitsList.Take(25))
             {
-                var changeCount = string.Format("{0,5}", folderChanges[folder.Filename].ChangeCount);
-                var percentage = string.Format("{0,5:#0.0}", ((double)folderChanges[folder.Filename].ChangeCount / (double)totalChanges) * 100);
+                var changeCount = string.Format("{0,5}", folderCommits[folder.Filename].CommitCount);
+                var percentage = string.Format("{0,5:#0.0}", ((double)folderCommits[folder.Filename].CommitCount / (double)totalCommits) * 100);
                 sb.AppendLine($"<tr><td class=\"text-right\">{folder.Filename}</td><td class=\"text-right\">{changeCount} ({percentage}%)</td></tr>");
             }
-            var total = string.Format("{0,5}", totalChanges);
-            sb.AppendLine($"<tr><td class=\"text-right\">Total number of changes analyzed</td><td class=\"text-right\">{total} ({string.Format("{0,5:##0.0}", 100)}%)</td></tr>");
+            var total = string.Format("{0,5}", totalCommits);
+            sb.AppendLine($"<tr><td class=\"text-right\">Total number of Commits analyzed</td><td class=\"text-right\">{total} ({string.Format("{0,5:##0.0}", 100)}%)</td></tr>");
             sb.AppendLine("</table>\n");
             sb.AppendLine("</div>");
             sb.AppendLine("<div class=\"col-md-6\">");
@@ -112,14 +112,14 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</div></div>");
         }
 
-        private void AddSectionChangesForEachFile(StringBuilder sb, FileStat fileChange, int sectionCounter)
+        private void AddSectionCommitsForEachFile(StringBuilder sb, FileStat fileChange, int sectionCounter)
         {
             var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
             var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
             sb.AppendLine("<div class=\"row\"><div class=\"col-md-6\">");
             sb.AppendLine($"<h3>{fileChange.Filename}</h3>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
-            sb.AppendLine($"<tr><td class=\"text-right\">Changes</td><td>{fileChange.ChangeCount}</td></tr>");
+            sb.AppendLine($"<tr><td class=\"text-right\">Commits</td><td>{fileChange.CommitCount}</td></tr>");
             sb.AppendLine($"<tr><td class=\"text-right\">Lines of code</td><td>{linesOfCode}</td></tr>");
             sb.AppendLine($"<tr><td class=\"text-right\">Cyclomatic Complexity</td><td>{cyclomaticComplexity}</td></tr>");
             sb.AppendLine("</table>");
@@ -129,15 +129,15 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</div>");
 
             sb.AppendLine("<div class=\"row\"><div class=\"col-md-6\">");
-            sb.AppendLine($"<b>Changes by user</b>");
+            sb.AppendLine($"<b>Commits by user</b>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
-            sb.AppendLine($"<tr><th>Name</th><th>Changes</th><th>Percentage</th></tr>");
+            sb.AppendLine($"<tr><th>Name</th><th>Commits</th><th>Percentage</th></tr>");
             var commitDates = new List<ScatterPoint>();
-            foreach (var userfileChange in userfileChangesList.Where(ufc => ufc.Filename == fileChange.Filename))
+            foreach (var userfileChange in userfileCommitsList.Where(ufc => ufc.Filename == fileChange.Filename))
             {
                 var username = string.Format("{0,20}", userfileChange.Username);
-                var changeCount = string.Format("{0,3}", userfileChange.ChangeCount);
-                var percentage = string.Format("{0,5:#0.00}", ((double)userfileChange.ChangeCount / (double)fileChange.ChangeCount) * 100);
+                var changeCount = string.Format("{0,3}", userfileChange.CommitCount);
+                var percentage = string.Format("{0,5:#0.00}", ((double)userfileChange.CommitCount / (double)fileChange.CommitCount) * 100);
                 sb.AppendLine($"<tr><td class=\"text-right\">{username}</td><td>{changeCount}</td><td>{percentage}%</td></tr>");
                 GenerateScatterPlotData(commitDates, userfileChange);
             }

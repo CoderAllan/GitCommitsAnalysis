@@ -3,6 +3,6 @@
 
     public class FileStat : UsernameFilename
     {
-        public int ChangeCount { get; set; } = 1;
+        public int CommitCount { get; set; } = 1;
     }
 }

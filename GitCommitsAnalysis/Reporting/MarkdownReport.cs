@@ -18,51 +18,51 @@ namespace GitCommitsAnalysis.Reporting
             this.reportFilename = reportFilename;
         }
 
-        public void Generate(Dictionary<string, FileStat> fileChanges, Dictionary<string, FileStat> userfileChanges, Dictionary<string, FileStat> folderChanges)
+        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits)
         {
             Console.WriteLine("Generating Markdown report...");
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("# GitCommitsAnalysis\n");
-            var fileChangesList = fileChanges.Values.OrderByDescending(fc => fc.ChangeCount).ThenBy(fc => fc.Filename);
-            var userfileChangesList = userfileChanges.Values.OrderByDescending(fc => fc.ChangeCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
+            var fileCommitsList = fileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
+            var userfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
 
 
-            var totalChanges = fileChangesList.Sum(fc => fc.ChangeCount);
-            sb.AppendLine("## Changes for each subfolder");
-            var folderChangesList = folderChanges.Values.OrderByDescending(fc => fc.ChangeCount);
-            foreach (var folder in folderChangesList.Take(25))
+            var totalCommits = fileCommitsList.Sum(fc => fc.CommitCount);
+            sb.AppendLine("## Commits for each subfolder");
+            var folderCommitsList = folderCommits.Values.OrderByDescending(fc => fc.CommitCount);
+            foreach (var folder in folderCommitsList.Take(25))
             {
                 var folderName = string.Format("{0,50}", folder.Filename);
-                var changeCount = string.Format("{0,5}", folderChanges[folder.Filename].ChangeCount);
-                var percentage = string.Format("{0,5:#0.00}", ((double)folderChanges[folder.Filename].ChangeCount / (double)totalChanges) * 100);
+                var changeCount = string.Format("{0,5}", folderCommits[folder.Filename].CommitCount);
+                var percentage = string.Format("{0,5:#0.00}", ((double)folderCommits[folder.Filename].CommitCount / (double)totalCommits) * 100);
                 sb.AppendLine($"{folderName}: {changeCount} ({percentage}%)");
             }
             sb.AppendLine($"{string.Format("{0,51}", "---------------")} {string.Format("{0,6}", "-----")} {string.Format("{0,7}", "------")}");
-            var total = string.Format("{0,5}", totalChanges);
-            sb.AppendLine($"{string.Format("{0,50}", "Total number of changes analyzed")}: {total} ({string.Format("{0,5:##0.0}", 100)}%)\n");
+            var total = string.Format("{0,5}", totalCommits);
+            sb.AppendLine($"{string.Format("{0,50}", "Total number of Commits analyzed")}: {total} ({string.Format("{0,5:##0.0}", 100)}%)\n");
 
             sb.AppendLine("---\n");
 
-            foreach (var fileChange in fileChangesList.Take(50))
+            foreach (var fileChange in fileCommitsList.Take(50))
             {
                 var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
                 var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
                 sb.AppendLine($"### {fileChange.Filename}\n");
                 sb.AppendLine("| | |");
                 sb.AppendLine("|---:|----:|");
-                sb.AppendLine($"| Changes | {fileChange.ChangeCount} |");
+                sb.AppendLine($"| Commits | {fileChange.CommitCount} |");
                 sb.AppendLine($"| Lines of code | {linesOfCode} |");
                 sb.AppendLine($"| Cyclomatic Complexity | {cyclomaticComplexity} |");
                 sb.AppendLine();
 
-                sb.AppendLine("__Changes by user:__\n");
-                sb.AppendLine($"| Name | Changes | Percentage |");
+                sb.AppendLine("__Commits by user:__\n");
+                sb.AppendLine($"| Name | Commits | Percentage |");
                 sb.AppendLine($"|-----:|--------:|-----------:|");
-                foreach (var userfileChange in userfileChangesList.Where(ufc => ufc.Filename == fileChange.Filename))
+                foreach (var userfileChange in userfileCommitsList.Where(ufc => ufc.Filename == fileChange.Filename))
                 {
                     var username = string.Format("{0,20}", userfileChange.Username);
-                    var changeCount = string.Format("{0,3}", userfileChange.ChangeCount);
-                    var percentage = string.Format("{0,5:#0.00}", ((double)userfileChange.ChangeCount / (double)fileChange.ChangeCount) * 100);
+                    var changeCount = string.Format("{0,3}", userfileChange.CommitCount);
+                    var percentage = string.Format("{0,5:#0.00}", ((double)userfileChange.CommitCount / (double)fileChange.CommitCount) * 100);
                     sb.AppendLine($"| {username} | {changeCount} | {percentage}% |");
                 }
                 sb.AppendLine();
