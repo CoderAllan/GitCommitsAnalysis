@@ -7,21 +7,10 @@ using GitCommitsAnalysis.Model;
 
 namespace GitCommitsAnalysis.Reporting
 {
-    public class HTMLReport : IReport
+    public class HTMLReport : BaseReport, IReport
     {
-        private string reportFilename;
-        private ISystemIO systemIO;
-
-        private IOrderedEnumerable<FileStat> fileCommitsList;
-        private IOrderedEnumerable<FileStat> userfileCommitsList;
-        private IOrderedEnumerable<FileStat> folderCommitsList;
-        private Dictionary<string, int> userNameKey = new Dictionary<string, int>();
-        private Dictionary<string, FileStat> folderCommits;
-
-        public HTMLReport(ISystemIO systemIO, string reportFilename)
+        public HTMLReport(ISystemIO systemIO, string reportFilename, int numberOfFilesToList) : base(systemIO, reportFilename, numberOfFilesToList)
         {
-            this.systemIO = systemIO;
-            this.reportFilename = reportFilename;
         }
 
         public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits)
@@ -30,27 +19,28 @@ namespace GitCommitsAnalysis.Reporting
             if (fileCommits == null) throw new ArgumentException("Parameter fileCommits is null.", nameof(fileCommits));
             if (userfileCommits == null) throw new ArgumentException("Parameter userfileCommits is null.", nameof(userfileCommits));
             if (folderCommits == null) throw new ArgumentException("Parameter folderCommits is null.", nameof(folderCommits));
-            this.fileCommitsList = fileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
-            this.userfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
+            this.FileCommitsList = fileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
+            this.UserfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
             var key = 1;
             foreach (var username in userfileCommits.Values.Select(fc => fc.Username).Distinct().OrderBy(un => un))
             {
-                userNameKey.Add(username, key++);
+                UserNameKey.Add(username, key++);
             };
-            this.folderCommits = folderCommits;
-            this.folderCommitsList = folderCommits.Values.OrderByDescending(fc => fc.CommitCount);
+            this.FolderCommits = folderCommits;
+            this.FolderCommitsList = folderCommits.Values.OrderByDescending(fc => fc.CommitCount);
 
             StringBuilder sb = new StringBuilder();
             AddHeader(sb);
             AddSectionCommitsForEachMonth(sb);
+            sb.Append($"<h2 id=\"mostChangedFiles\">Top {NumberOfFilesToList} most changed files</h2>");
             var sectionCounter = 1;
-            foreach (var fileChange in fileCommitsList.Take(50))
+            foreach (var fileChange in FileCommitsList.Take(NumberOfFilesToList))
             {
                 AddSectionCommitsForEachFile(sb, fileChange, sectionCounter++);
             }
             AddFooter(sb);
 
-            systemIO.WriteAllText($"{reportFilename}.html", sb.ToString());
+            SystemIO.WriteAllText($"{ReportFilename}.html", sb.ToString());
         }
 
         private void AddHeader(StringBuilder sb)
@@ -66,7 +56,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
             sb.AppendLine("<div class=\"container\">");
-            sb.AppendLine("<h1 id = \"GitCommitsAnalysis\" >GitCommitsAnalysis</h1>");
+            sb.AppendLine("<h1 id=\"GitCommitsAnalysis\">GitCommitsAnalysis</h1>");
         }
 
         private void AddFooter(StringBuilder sb)
@@ -85,7 +75,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("google.charts.setOnLoadCallback(drawChart);");
             sb.AppendLine("function drawChart() {");
             sb.AppendLine("   var data = google.visualization.arrayToDataTable([['Folder', 'Commits'], ");
-            foreach (var folder in folderCommitsList.Take(25))
+            foreach (var folder in FolderCommitsList.Take(25))
             {
                 sb.AppendLine($"      ['{folder.Filename}', {folder.CommitCount}],");
             }
@@ -99,16 +89,16 @@ namespace GitCommitsAnalysis.Reporting
 
         private void AddSectionCommitsForEachMonth(StringBuilder sb)
         {
-            var totalCommits = fileCommitsList.Sum(fc => fc.CommitCount);
+            var totalCommits = FileCommitsList.Sum(fc => fc.CommitCount);
             sb.AppendLine("<div class=\"row\">");
             sb.AppendLine("<div class=\"col-md-6\">");
             sb.AppendLine("<h2>Commits for each subfolder</h2>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
             sb.AppendLine("<tr><th class=\"text-right\">Folder</th><th class=\"text-right\">Commits</th></tr>");
-            foreach (var folder in folderCommitsList.Take(25))
+            foreach (var folder in FolderCommitsList.Take(25))
             {
-                var changeCount = string.Format("{0,5}", folderCommits[folder.Filename].CommitCount);
-                var percentage = string.Format("{0,5:#0.0}", ((double)folderCommits[folder.Filename].CommitCount / (double)totalCommits) * 100);
+                var changeCount = string.Format("{0,5}", FolderCommits[folder.Filename].CommitCount);
+                var percentage = string.Format("{0,5:#0.0}", ((double)FolderCommits[folder.Filename].CommitCount / (double)totalCommits) * 100);
                 sb.AppendLine($"<tr><td class=\"text-right\">{folder.Filename}</td><td class=\"text-right\">{changeCount} ({percentage}%)</td></tr>");
             }
             var total = string.Format("{0,5}", totalCommits);
@@ -138,17 +128,16 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</div>");
 
             sb.AppendLine("<div class=\"row\"><div class=\"col-md-6\">");
-            sb.AppendLine($"<b>Commits by user</b>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
-            sb.AppendLine($"<tr><th>Name</th><th>Commits</th><th>Percentage</th></tr>");
+            sb.AppendLine($"<tr><th>Name</th><th>Commits</th><th>Percentage</th><th>Latest commit</th></tr>");
             var commitDates = new List<ScatterPoint>();
-            foreach (var userfileChange in userfileCommitsList.Where(ufc => ufc.Filename == fileChange.Filename))
+            foreach (var userfileChange in UserfileCommitsList.Where(ufc => ufc.Filename == fileChange.Filename))
             {
                 var username = string.Format("{0,20}", userfileChange.Username);
                 var changeCount = string.Format("{0,3}", userfileChange.CommitCount);
                 var percentage = string.Format("{0,5:#0.00}", ((double)userfileChange.CommitCount / (double)fileChange.CommitCount) * 100);
-                sb.AppendLine($"<tr><td class=\"text-right\">{username}</td><td>{changeCount}</td><td>{percentage}%</td></tr>");
-                GenerateScatterPlotData(commitDates, userfileChange);
+                var latestCommit = GenerateScatterPlotData(commitDates, userfileChange);
+                sb.AppendLine($"<tr><td class=\"text-right\">{username}</td><td>{changeCount}</td><td>{percentage}%</td><td>{latestCommit}</td></tr>");
             }
 
             sb.AppendLine("</table>");
@@ -161,12 +150,13 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</div>");
         }
 
-        private void GenerateScatterPlotData(List<ScatterPoint> commitDates, FileStat fileStat)
+        private string GenerateScatterPlotData(List<ScatterPoint> commitDates, FileStat fileStat)
         {
-            foreach (var commitDate in fileStat.CommitDates)
+            var commitDatesOrdered = fileStat.CommitDates.OrderBy(date => date);
+            foreach (var commitDate in commitDatesOrdered)
             {
                 var date = $"new Date('{commitDate.ToString("yyyy-MM-dd")}')";
-                var userId = userNameKey[fileStat.Username];
+                var userId = UserNameKey[fileStat.Username];
                 if (!commitDates.Any(cd => cd.Date == date && cd.UserId == userId)) // Only add a point for each user for each date
                 {
                     commitDates.Add(new ScatterPoint
@@ -177,6 +167,8 @@ namespace GitCommitsAnalysis.Reporting
                     });
                 }
             }
+            var latestCommitDate = commitDatesOrdered.Last();
+            return latestCommitDate.ToString("yyyy-MM-dd");
         }
 
         private static void AddScatterplotJavascript(StringBuilder sb, List<ScatterPoint> commitDates, int sectionCounter)

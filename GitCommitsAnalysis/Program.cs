@@ -47,11 +47,11 @@ namespace GitCommitsAnalysis
                 var filename = $"{opts.OutputFolder}\\{outputFilename}";
                 if (format == OutputFormat.Text)
                 {
-                    reportGenerators.Add(new TextFileReport(systemIO, filename));
+                    reportGenerators.Add(new TextFileReport(systemIO, filename, opts.NumberOfFilesInList));
                 }
                 if (format == OutputFormat.Markdown)
                 {
-                    reportGenerators.Add(new MarkdownReport(systemIO, filename));
+                    reportGenerators.Add(new MarkdownReport(systemIO, filename, opts.NumberOfFilesInList));
                 }
                 if (format == OutputFormat.Json)
                 {
@@ -59,7 +59,7 @@ namespace GitCommitsAnalysis
                 }
                 if (format == OutputFormat.HTML)
                 {
-                    reportGenerators.Add(new HTMLReport(systemIO, filename));
+                    reportGenerators.Add(new HTMLReport(systemIO, filename, opts.NumberOfFilesInList));
                 }
             }
             return reportGenerators;

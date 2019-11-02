@@ -21,6 +21,7 @@ namespace GitCommitsAnalysis
 
         public void PerformAnalysis(string rootFolder)
         {
+            Console.WriteLine("Analysing commits...");
             using (var repo = new Repository(rootFolder))
             {
                 var fileCommits = new Dictionary<string, FileStat>();

@@ -7,14 +7,10 @@ using GitCommitsAnalysis.Model;
 
 namespace GitCommitsAnalysis.Reporting
 {
-    public class TextFileReport : IReport
+    public class TextFileReport : BaseReport, IReport
     {
-        private string reportFilename;
-        private ISystemIO systemIO;
-        public TextFileReport(ISystemIO systemIO, string reportFilename)
+        public TextFileReport(ISystemIO systemIO, string reportFilename, int numberOfFilesToList) : base(systemIO, reportFilename, numberOfFilesToList)
         {
-            this.systemIO = systemIO;
-            this.reportFilename = reportFilename;
         }
 
         public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits)
@@ -28,7 +24,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine($"Total number of Commits analyzed: {totalCommits}");
 
             var folderCommitsList = folderCommits.Values.OrderByDescending(fc => fc.CommitCount);
-            foreach (var folder in folderCommitsList.Take(25))
+            foreach (var folder in folderCommitsList.Take(NumberOfFilesToList))
             {
                 var folderName = string.Format("{0,50}", folder.Filename);
                 var changeCount = string.Format("{0,5}", folderCommits[folder.Filename].CommitCount);
@@ -51,7 +47,7 @@ namespace GitCommitsAnalysis.Reporting
                 }
             }
 
-            systemIO.WriteAllText($"{reportFilename}.txt", sb.ToString());
+            SystemIO.WriteAllText($"{ReportFilename}.txt", sb.ToString());
         }
     }
 }
