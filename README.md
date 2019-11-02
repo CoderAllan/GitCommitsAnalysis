@@ -64,6 +64,8 @@ The calculation of the Cyclomatic Complexity i found over at [Jakob Reimers Arch
 
 [Google charts](https://developers.google.com/chart) for displaying the pie chart and the scatter charts in the HTML report.
 
+[Bootstrap](https://getbootstrap.com/docs/3.4/getting-started/) for styling the HTML report.
+
 ## Screenshots
 
 ![Html report](screenshots/HtmlReport.png)
