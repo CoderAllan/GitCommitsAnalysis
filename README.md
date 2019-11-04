@@ -1,4 +1,4 @@
-# GitCommitsAnalysis
+# GitCommitsAnalysis ![GitHub top language](https://img.shields.io/github/languages/top/CoderAllan/GitCommitsAnalysis.svg) ![GitHub](https://img.shields.io/github/license/CoderAllan/GitCommitsAnalysis.svg) ![GitHub last commit](https://img.shields.io/github/last-commit/CoderAllan/GitCommitsAnalysis.svg)
 
 This tool can be used to generate a report showing the temporal distribution of you commits and the size and complexity of the codefiles in a Git repository.
 
