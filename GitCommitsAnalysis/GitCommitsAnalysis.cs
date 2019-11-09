@@ -24,6 +24,7 @@ namespace GitCommitsAnalysis
             Console.WriteLine("Analysing commits...");
             using (var repo = new Repository(rootFolder))
             {
+                var commitsEachDay = new Dictionary<DateTime, int>();
                 var fileCommits = new Dictionary<string, FileStat>();
                 var folderCommits = new Dictionary<string, FileStat>();
                 var userfileCommits = new Dictionary<string, FileStat>();
@@ -34,7 +35,15 @@ namespace GitCommitsAnalysis
                 foreach (var commit in repo.Commits)
                 {
                     var username = commit.Author.Name;
-                    var commitDate = commit.Author.When.UtcDateTime;
+                    var commitDate = commit.Author.When.UtcDateTime.Date;
+                    if (commitsEachDay.ContainsKey(commitDate))
+                    {
+                        commitsEachDay[commitDate]++;
+                    }
+                    else
+                    {
+                        commitsEachDay[commitDate] = 1;
+                    }
                     foreach (var parent in commit.Parents)
                     {
                         foreach (TreeEntryChanges change in repo.Diff.Compare<TreeChanges>(parent.Tree, commit.Tree))
@@ -92,7 +101,7 @@ namespace GitCommitsAnalysis
 
                 foreach (var report in reports)
                 {
-                    report.Generate(fileCommits, userfileCommits, folderCommits);
+                    report.Generate(fileCommits, userfileCommits, folderCommits, commitsEachDay);
                 }
             }
         }

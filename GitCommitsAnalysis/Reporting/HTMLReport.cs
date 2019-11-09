@@ -13,12 +13,13 @@ namespace GitCommitsAnalysis.Reporting
         {
         }
 
-        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits)
+        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits, Dictionary<DateTime, int> commitsEachDay)
         {
             Console.WriteLine("Generating HTML report...");
             if (fileCommits == null) throw new ArgumentException("Parameter fileCommits is null.", nameof(fileCommits));
             if (userfileCommits == null) throw new ArgumentException("Parameter userfileCommits is null.", nameof(userfileCommits));
             if (folderCommits == null) throw new ArgumentException("Parameter folderCommits is null.", nameof(folderCommits));
+            if (commitsEachDay == null) throw new ArgumentException("Parameter commitsEachDay is null.", nameof(commitsEachDay));
             this.FileCommitsList = fileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
             this.UserfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
             var key = 1;
@@ -31,6 +32,9 @@ namespace GitCommitsAnalysis.Reporting
 
             StringBuilder sb = new StringBuilder();
             AddHeader(sb);
+            AddNavTabs(sb);
+            sb.AppendLine("<div class=\"tab-content\">");
+            sb.AppendLine("<div role=\"tabpanel\" class=\"tab-pane active\" id=\"commitsForEachSubfolder\">");
             AddSectionCommitsForEachMonth(sb);
             sb.Append($"<h2 id=\"mostChangedFiles\">Top {NumberOfFilesToList} most changed files</h2>");
             var sectionCounter = 1;
@@ -38,6 +42,11 @@ namespace GitCommitsAnalysis.Reporting
             {
                 AddSectionCommitsForEachFile(sb, fileChange, sectionCounter++);
             }
+            sb.AppendLine("</div>");
+            sb.AppendLine("<div role=\"tabpanel\" class=\"tab-pane\" id=\"commitsEachDay\">");
+            AddSectionCommitsForEachDay(sb, commitsEachDay);
+            sb.AppendLine("</div>");
+            sb.AppendLine("</div>");
             AddFooter(sb);
 
             SystemIO.WriteAllText($"{ReportFilename}.html", sb.ToString());
@@ -47,6 +56,8 @@ namespace GitCommitsAnalysis.Reporting
         {
             sb.AppendLine("<html><head>");
             sb.AppendLine("<link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\" integrity=\"sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu\" crossorigin=\"anonymous\">");
+            sb.AppendLine("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js\"></script>");
+            sb.AppendLine("<script src=\"https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js\" integrity=\"sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd\" crossorigin=\"anonymous\"></script>");
             sb.AppendLine("<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>");
             sb.AppendLine("<style>");
             sb.AppendLine("body {");
@@ -66,6 +77,18 @@ namespace GitCommitsAnalysis.Reporting
 
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
+        }
+
+        private void AddNavTabs(StringBuilder sb)
+        {
+            sb.AppendLine("<script type=\"javascript\">");
+            sb.AppendLine("$('#tabs a[href=\"#commitsForEachSubfolder\"]').click(function (e) { e.preventDefault() $(this).tab('show')})");
+            sb.AppendLine("$('#tabs a[href=\"#commitsEachDay\"]').click(function (e) { e.preventDefault() $(this).tab('show')})");
+            sb.AppendLine("</script>");
+            sb.AppendLine("<ul class=\"nav nav-tabs\" role=\"tablist\" id=\"tabs\">");
+            sb.AppendLine("<li role=\"presentation\" class=\"active\"><a href=\"#commitsForEachSubfolder\" aria-controls=\"home\" role=\"tab\" data-toggle=\"tab\">Commits for each subfolder</a></li>");
+            sb.AppendLine("<li role=\"presentation\"><a href=\"#commitsEachDay\" aria-controls=\"commitsEachDay\" role=\"tab\" data-toggle=\"tab\">Commits each date</a></li>");
+            sb.AppendLine("</ul>");
         }
 
         private void AddPieChartJavascript(StringBuilder sb)
@@ -108,6 +131,43 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<div class=\"col-md-6\">");
             AddPieChartJavascript(sb);
             sb.AppendLine("<div id=\"piechart\" style=\"width: 900px; height: 500px; \"></div>");
+            sb.AppendLine("</div></div>");
+        }
+
+        private void AddComitsEachDayChartJavascript(StringBuilder sb, Dictionary<DateTime, int> commitsEachDay)
+        {
+            sb.AppendLine("<script type=\"text/javascript\">");
+            sb.AppendLine("google.charts.load('current', { 'packages':['corechart']});");
+            sb.AppendLine("google.charts.setOnLoadCallback(drawChart);");
+            sb.AppendLine("function drawChart() {");
+            sb.AppendLine($"var data = new google.visualization.DataTable();");
+            sb.AppendLine($"data.addColumn('date', 'Date');");
+            sb.AppendLine($"data.addColumn('number', 'Commits');");
+            sb.AppendLine($"data.addColumn({{ type: 'string', role: 'tooltip'}});");
+            sb.AppendLine($"data.addRows([");
+            var dateOfFirstCommit = commitsEachDay.Keys.OrderBy(date => date).First();
+            for (var date = dateOfFirstCommit; date <= DateTime.Now; date = date.AddDays(1))
+            {
+                var numberOfCommits = commitsEachDay.ContainsKey(date) ? commitsEachDay[date] : 0;
+                sb.AppendLine($"      [new Date('{date.ToString("yyyy-MM-dd")}'), {numberOfCommits}, '{date.ToString("yyyy-MM-dd")}, {numberOfCommits}'],");
+            }
+            sb.AppendLine("   ]);");
+            sb.AppendLine("   var options = { title: 'Commits each day', width: 1200, height: 500, legend: 'none' }; ");
+            sb.AppendLine("   var chart = new google.visualization.LineChart(document.getElementById('comitsEachDayChart'));");
+            sb.AppendLine("   chart.draw(data, options);");
+            sb.AppendLine("}");
+            sb.AppendLine("</script>");
+        }
+
+        private void AddSectionCommitsForEachDay(StringBuilder sb, Dictionary<DateTime, int> commitsEachDay)
+        {
+            var totalCommits = FileCommitsList.Sum(fc => fc.CommitCount);
+            sb.AppendLine("<div class=\"row\">");
+            sb.AppendLine("<div class=\"col\">");
+            sb.AppendLine("<h2>Commits for each day</h2>");
+            sb.AppendLine("");
+            AddComitsEachDayChartJavascript(sb, commitsEachDay);
+            sb.AppendLine("<div id=\"comitsEachDayChart\"></div>");
             sb.AppendLine("</div></div>");
         }
 

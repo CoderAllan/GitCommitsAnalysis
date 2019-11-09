@@ -14,7 +14,7 @@ namespace GitCommitsAnalysis.Reporting
         {
         }
 
-        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits)
+        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits, Dictionary<DateTime, int> commitsEachDay)
         {
             Console.WriteLine("Generating Markdown report...");
             StringBuilder sb = new StringBuilder();

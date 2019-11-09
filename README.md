@@ -66,6 +66,8 @@ The calculation of the Cyclomatic Complexity i found over at [Jakob Reimers Arch
 
 [Bootstrap](https://getbootstrap.com/docs/3.4/getting-started/) for styling the HTML report.
 
+[jQuery](https://jquery.com/) used by the HTML report.
+
 ## Screenshots
 
 ![Html report](screenshots/HtmlReport.png)
