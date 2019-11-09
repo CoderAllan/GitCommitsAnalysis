@@ -13,13 +13,22 @@ namespace GitCommitsAnalysis.Reporting
         {
         }
 
-        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits, Dictionary<DateTime, int> commitsEachDay)
+        public void Generate(
+            Dictionary<string, FileStat> fileCommits,
+            Dictionary<string, FileStat> userfileCommits,
+            Dictionary<string, FileStat> folderCommits,
+            Dictionary<DateTime, int> commitsEachDay,
+            Dictionary<DateTime, int> linesOfCodeAddedEachDay,
+            Dictionary<DateTime, int> linesOfCodeDeletedEachDay
+            )
         {
             Console.WriteLine("Generating HTML report...");
             if (fileCommits == null) throw new ArgumentException("Parameter fileCommits is null.", nameof(fileCommits));
             if (userfileCommits == null) throw new ArgumentException("Parameter userfileCommits is null.", nameof(userfileCommits));
             if (folderCommits == null) throw new ArgumentException("Parameter folderCommits is null.", nameof(folderCommits));
             if (commitsEachDay == null) throw new ArgumentException("Parameter commitsEachDay is null.", nameof(commitsEachDay));
+            if (linesOfCodeAddedEachDay == null) throw new ArgumentException("Parameter linesOfCodeAddedEachDay is null.", nameof(linesOfCodeAddedEachDay));
+            if (linesOfCodeDeletedEachDay == null) throw new ArgumentException("Parameter linesOfCodeDeletedEachDay is null.", nameof(linesOfCodeDeletedEachDay));
             this.FileCommitsList = fileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
             this.UserfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
             var key = 1;
@@ -43,8 +52,9 @@ namespace GitCommitsAnalysis.Reporting
                 AddSectionCommitsForEachFile(sb, fileChange, sectionCounter++);
             }
             sb.AppendLine("</div>");
-            sb.AppendLine("<div role=\"tabpanel\" class=\"tab-pane\" id=\"commitsEachDay\">");
+            sb.AppendLine("<div role=\"tabpanel\" class=\"tab-pane\" id=\"activityEachDay\">");
             AddSectionCommitsForEachDay(sb, commitsEachDay);
+            AddSectionLinesChangedEachDay(sb, linesOfCodeAddedEachDay, linesOfCodeDeletedEachDay);
             sb.AppendLine("</div>");
             sb.AppendLine("</div>");
             AddFooter(sb);
@@ -83,11 +93,11 @@ namespace GitCommitsAnalysis.Reporting
         {
             sb.AppendLine("<script type=\"javascript\">");
             sb.AppendLine("$('#tabs a[href=\"#commitsForEachSubfolder\"]').click(function (e) { e.preventDefault() $(this).tab('show')})");
-            sb.AppendLine("$('#tabs a[href=\"#commitsEachDay\"]').click(function (e) { e.preventDefault() $(this).tab('show')})");
+            sb.AppendLine("$('#tabs a[href=\"#activityEachDay\"]').click(function (e) { e.preventDefault() $(this).tab('show')})");
             sb.AppendLine("</script>");
             sb.AppendLine("<ul class=\"nav nav-tabs\" role=\"tablist\" id=\"tabs\">");
             sb.AppendLine("<li role=\"presentation\" class=\"active\"><a href=\"#commitsForEachSubfolder\" aria-controls=\"home\" role=\"tab\" data-toggle=\"tab\">Commits for each subfolder</a></li>");
-            sb.AppendLine("<li role=\"presentation\"><a href=\"#commitsEachDay\" aria-controls=\"commitsEachDay\" role=\"tab\" data-toggle=\"tab\">Commits each date</a></li>");
+            sb.AppendLine("<li role=\"presentation\"><a href=\"#activityEachDay\" aria-controls=\"activityEachDay\" role=\"tab\" data-toggle=\"tab\">Activity each date</a></li>");
             sb.AppendLine("</ul>");
         }
 
@@ -134,7 +144,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</div></div>");
         }
 
-        private void AddComitsEachDayChartJavascript(StringBuilder sb, Dictionary<DateTime, int> commitsEachDay)
+        private void AddcommitsEachDayChartJavascript(StringBuilder sb, Dictionary<DateTime, int> commitsEachDay)
         {
             sb.AppendLine("<script type=\"text/javascript\">");
             sb.AppendLine("google.charts.load('current', { 'packages':['corechart']});");
@@ -152,8 +162,8 @@ namespace GitCommitsAnalysis.Reporting
                 sb.AppendLine($"      [new Date('{date.ToString("yyyy-MM-dd")}'), {numberOfCommits}, '{date.ToString("yyyy-MM-dd")}, {numberOfCommits}'],");
             }
             sb.AppendLine("   ]);");
-            sb.AppendLine("   var options = { title: 'Commits each day', width: 1200, height: 500, legend: 'none' }; ");
-            sb.AppendLine("   var chart = new google.visualization.LineChart(document.getElementById('comitsEachDayChart'));");
+            sb.AppendLine("   var options = { width: 1200, height: 500, legend: 'none', hAxis: { title: 'Date'}, vAxis: { title: 'Commits' } }; ");
+            sb.AppendLine("   var chart = new google.visualization.LineChart(document.getElementById('commitsEachDayChart'));");
             sb.AppendLine("   chart.draw(data, options);");
             sb.AppendLine("}");
             sb.AppendLine("</script>");
@@ -161,13 +171,51 @@ namespace GitCommitsAnalysis.Reporting
 
         private void AddSectionCommitsForEachDay(StringBuilder sb, Dictionary<DateTime, int> commitsEachDay)
         {
-            var totalCommits = FileCommitsList.Sum(fc => fc.CommitCount);
+            // var totalCommits = FileCommitsList.Sum(fc => fc.CommitCount);
             sb.AppendLine("<div class=\"row\">");
             sb.AppendLine("<div class=\"col\">");
             sb.AppendLine("<h2>Commits for each day</h2>");
             sb.AppendLine("");
-            AddComitsEachDayChartJavascript(sb, commitsEachDay);
-            sb.AppendLine("<div id=\"comitsEachDayChart\"></div>");
+            AddcommitsEachDayChartJavascript(sb, commitsEachDay);
+            sb.AppendLine("<div id=\"commitsEachDayChart\"></div>");
+            sb.AppendLine("</div></div>");
+        }
+
+        private void AddLinesChangedEachDayChartJavascript(StringBuilder sb, Dictionary<DateTime, int> linesOfCodeAddedEachDay, Dictionary<DateTime, int> linesOfCodeDeletedEachDay)
+        {
+            sb.AppendLine("<script type=\"text/javascript\">");
+            sb.AppendLine("google.charts.load('current', { 'packages':['corechart']});");
+            sb.AppendLine("google.charts.setOnLoadCallback(drawChart);");
+            sb.AppendLine("function drawChart() {");
+            sb.AppendLine($"var data = new google.visualization.DataTable();");
+            sb.AppendLine($"data.addColumn('date', 'Date');");
+            sb.AppendLine($"data.addColumn('number', 'Lines added');");
+            sb.AppendLine($"data.addColumn('number', 'Lines deleted');");
+            sb.AppendLine($"data.addColumn({{ type: 'string', role: 'tooltip'}});");
+            sb.AppendLine($"data.addRows([");
+            var dateOfFirstChange = linesOfCodeAddedEachDay.Keys.OrderBy(date => date).First();
+            for (var date = dateOfFirstChange; date <= DateTime.Now; date = date.AddDays(1))
+            {
+                var numberOfLinesAdded = linesOfCodeAddedEachDay.ContainsKey(date) ? linesOfCodeAddedEachDay[date] : 0;
+                var numberOfLinesDeleted = linesOfCodeDeletedEachDay.ContainsKey(date) ? linesOfCodeDeletedEachDay[date] : 0;
+                sb.AppendLine($"      [new Date('{date.ToString("yyyy-MM-dd")}'), {numberOfLinesAdded}, {numberOfLinesDeleted}, '{date.ToString("yyyy-MM-dd")}, +{numberOfLinesAdded}, -{numberOfLinesDeleted}'],");
+            }
+            sb.AppendLine("   ]);");
+            sb.AppendLine("   var options = { width: 1200, height: 500, hAxis: { title: 'Date'}, vAxis: { title: 'Lines added/deleted' } }; ");
+            sb.AppendLine("   var chart = new google.visualization.LineChart(document.getElementById('linesChangedEachDayChart'));");
+            sb.AppendLine("   chart.draw(data, options);");
+            sb.AppendLine("}");
+            sb.AppendLine("</script>");
+        }
+
+        private void AddSectionLinesChangedEachDay(StringBuilder sb, Dictionary<DateTime, int> linesOfCodeAddedEachDay, Dictionary<DateTime, int> linesOfCodeDeletedEachDay)
+        {
+            sb.AppendLine("<div class=\"row\">");
+            sb.AppendLine("<div class=\"col\">");
+            sb.AppendLine("<h2>Lines changed each day</h2>");
+            sb.AppendLine("");
+            AddLinesChangedEachDayChartJavascript(sb, linesOfCodeAddedEachDay, linesOfCodeDeletedEachDay);
+            sb.AppendLine("<div id=\"linesChangedEachDayChart\"></div>");
             sb.AppendLine("</div></div>");
         }
 

@@ -13,7 +13,14 @@ namespace GitCommitsAnalysis.Reporting
         {
         }
 
-        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits, Dictionary<DateTime, int> commitsEachDay)
+        public void Generate(
+            Dictionary<string, FileStat> fileCommits,
+            Dictionary<string, FileStat> userfileCommits,
+            Dictionary<string, FileStat> folderCommits,
+            Dictionary<DateTime, int> commitsEachDay,
+            Dictionary<DateTime, int> linesOfCodeAddedEachDay,
+            Dictionary<DateTime, int> linesOfCodeDeletedEachDay
+            )
         {
             Console.WriteLine("Generating Textfile report...");
             StringBuilder sb = new StringBuilder();

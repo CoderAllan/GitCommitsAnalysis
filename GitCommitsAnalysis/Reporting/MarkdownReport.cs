@@ -7,14 +7,21 @@ using GitCommitsAnalysis.Model;
 
 namespace GitCommitsAnalysis.Reporting
 {
-   
+
     public class MarkdownReport : BaseReport, IReport
     {
         public MarkdownReport(ISystemIO systemIO, string reportFilename, int numberOfFilesToList) : base(systemIO, reportFilename, numberOfFilesToList)
         {
         }
 
-        public void Generate(Dictionary<string, FileStat> fileCommits, Dictionary<string, FileStat> userfileCommits, Dictionary<string, FileStat> folderCommits, Dictionary<DateTime, int> commitsEachDay)
+        public void Generate(
+            Dictionary<string, FileStat> fileCommits,
+            Dictionary<string, FileStat> userfileCommits,
+            Dictionary<string, FileStat> folderCommits,
+            Dictionary<DateTime, int> commitsEachDay,
+            Dictionary<DateTime, int> linesOfCodeAddedEachDay,
+            Dictionary<DateTime, int> linesOfCodeDeletedEachDay
+            )
         {
             Console.WriteLine("Generating Markdown report...");
             StringBuilder sb = new StringBuilder();

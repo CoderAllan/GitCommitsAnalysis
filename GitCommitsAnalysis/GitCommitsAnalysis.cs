@@ -25,6 +25,8 @@ namespace GitCommitsAnalysis
             using (var repo = new Repository(rootFolder))
             {
                 var commitsEachDay = new Dictionary<DateTime, int>();
+                var linesOfCodeAddedEachDay = new Dictionary<DateTime, int>();
+                var linesOfCodeDeletedEachDay = new Dictionary<DateTime, int>();
                 var fileCommits = new Dictionary<string, FileStat>();
                 var folderCommits = new Dictionary<string, FileStat>();
                 var userfileCommits = new Dictionary<string, FileStat>();
@@ -35,16 +37,12 @@ namespace GitCommitsAnalysis
                 {
                     var username = commit.Author.Name;
                     var commitDate = commit.Author.When.UtcDateTime.Date;
-                    if (commitsEachDay.ContainsKey(commitDate))
-                    {
-                        commitsEachDay[commitDate]++;
-                    }
-                    else
-                    {
-                        commitsEachDay[commitDate] = 1;
-                    }
+                    IncDictionaryValue(commitsEachDay, commitDate);
                     foreach (var parent in commit.Parents)
                     {
+                        var patch = repo.Diff.Compare<Patch>(parent.Tree, commit.Tree);
+                        IncDictionaryValue(linesOfCodeAddedEachDay, commitDate, patch.LinesAdded);
+                        IncDictionaryValue(linesOfCodeDeletedEachDay, commitDate, patch.LinesDeleted);
                         foreach (TreeEntryChanges change in repo.Diff.Compare<TreeChanges>(parent.Tree, commit.Tree))
                         {
                             int linesOfCode = 0;
@@ -96,7 +94,7 @@ namespace GitCommitsAnalysis
 
                 foreach (var report in reports)
                 {
-                    report.Generate(fileCommits, userfileCommits, folderCommits, commitsEachDay);
+                    report.Generate(fileCommits, userfileCommits, folderCommits, commitsEachDay, linesOfCodeAddedEachDay, linesOfCodeDeletedEachDay);
                 }
             }
         }
@@ -114,6 +112,19 @@ namespace GitCommitsAnalysis
                 folderName = ".";
             }
             return folderName;
+        }
+
+        private static void IncDictionaryValue(Dictionary<DateTime, int> dictionary, DateTime key, int increment = 1)
+        {
+            if (dictionary.ContainsKey(key))
+            {
+                dictionary[key] += increment;
+            }
+            else
+            {
+                dictionary[key] = increment;
+            }
+
         }
     }
 }
