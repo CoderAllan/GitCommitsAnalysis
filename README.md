@@ -26,7 +26,7 @@ The tool is a command line tool that generates a report in one of the formats:
 * Text
 * Json (A dump of the collected data. Could be used as input for other tools)
 
-The HTML report is the most detailed with pie charts and scatter plots.
+The HTML report is the most detailed with various charts visualizing the statistics.
 
 ## Commandline parameters
 
@@ -34,20 +34,24 @@ The HTML report is the most detailed with pie charts and scatter plots.
 GitCommitsAnalysis 1.0.0
 Copyright (C) 2019 GitCommitsAnalysis
 
-ERROR(S):
-  Required option 'r, rootfolder' is missing.
-  Required option 'o, outputfolder' is missing.
+  -r, --rootfolder             Required. The root folder of the application
+                               source code
 
-  -r, --rootfolder        Required. The root folder of the application source
-                          code
+  -o, --outputfolder           Required. The output folder where the generated
+                               reports will be placed
 
-  -o, --outputfolder      Required. The output folder where the generated
-                          reports will be placed
+  -a, --reportfilename         The filename the report(s) will be given
 
-  -a, --reportfilename    The filename the report(s) will be given
+  -f, --outputformat           The output format(s) to generate. Multiple
+                               formats should be space-seperated. Eg. '-f Text
+                               Json'
 
-  -f, --outputformat      The output format(s) to generate. Multiple formats
-                          should be space-seperated. Eg. '-f Text Json'
+  -n, --numberoffilestolist    (Default: 50) Specifies the number of flies to
+                               include in the list of most changes files.
+                               (Ignored when output is Json)
+
+  -t, --title                  (Default: GitCommitsAnalysis) The title to appear
+                               in the top of the reports
 ```
 
 ## Credits
@@ -68,6 +72,12 @@ The calculation of the Cyclomatic Complexity i found over at [Jakob Reimers Arch
 
 [jQuery](https://jquery.com/) used by the HTML report.
 
+## Contributing
+
+Any ideas, bug reports or help building this tool, is greatly appreciated. Have a look in the [Contributing file](CONTRIBUTING.md) about how to help.
+
 ## Screenshots
 
-![Html report](screenshots/HtmlReport.png)
+![Html report](screenshots/HtmlReport1.png)
+
+![Html report](screenshots/HtmlReport2.png)
