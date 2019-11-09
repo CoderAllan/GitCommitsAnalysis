@@ -31,7 +31,6 @@ namespace GitCommitsAnalysis
                 var renamedFiles = new Dictionary<string, string>();
                 var cyclomaticComplexityCounter = new CyclomaticComplexityCounter();
                 var linesOfCodeCalculator = new LinesOfCodeCalculator();
-                var simpleLinesOfCodeCalculator = new SimpleLinesOfCodeCalculator();
                 foreach (var commit in repo.Commits)
                 {
                     var username = commit.Author.Name;
@@ -77,12 +76,8 @@ namespace GitCommitsAnalysis
                                     if (change.Path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
                                     {
                                         cyclomaticComplexity = cyclomaticComplexityCounter.Calculate(fileContents);
-                                        linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
                                     }
-                                    else
-                                    {
-                                        linesOfCode = simpleLinesOfCodeCalculator.Calculate(fileContents);
-                                    }
+                                    linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
                                 }
                                 fileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode };
                             }
