@@ -17,8 +17,11 @@ namespace GitCommitsAnalysis
         [Option('f', "outputformat", Required = false, HelpText = "The output format(s) to generate. Multiple formats should be space-seperated. Eg. '-f Text Json'")]
         public IEnumerable<OutputFormat> OutputFormat { get; set; }
 
-        [Option('n', "numberoffiletolist", Default = 50, HelpText = "Specifies the number of flies to include in the list of most changes files. (Ignored when output is Json)")]
+        [Option('n', "numberoffilestolist", Default = 50, HelpText = "Specifies the number of flies to include in the list of most changes files. (Ignored when output is Json)")]
         public int NumberOfFilesInList { get; set; }
+
+        [Option('t', "title", Default = "GitCommitsAnalysis", HelpText = "The title to appear in the top of the reports")]
+        public string Title { get; set; }
     }
 
     public enum OutputFormat

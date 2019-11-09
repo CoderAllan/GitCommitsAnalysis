@@ -47,19 +47,19 @@ namespace GitCommitsAnalysis
                 var filename = $"{opts.OutputFolder}\\{outputFilename}";
                 if (format == OutputFormat.Text)
                 {
-                    reportGenerators.Add(new TextFileReport(systemIO, filename, opts.NumberOfFilesInList));
+                    reportGenerators.Add(new TextFileReport(systemIO, filename, opts.Title, opts.NumberOfFilesInList));
                 }
                 if (format == OutputFormat.Markdown)
                 {
-                    reportGenerators.Add(new MarkdownReport(systemIO, filename, opts.NumberOfFilesInList));
+                    reportGenerators.Add(new MarkdownReport(systemIO, filename, opts.Title, opts.NumberOfFilesInList));
                 }
                 if (format == OutputFormat.Json)
                 {
-                    reportGenerators.Add(new JsonReport(systemIO, filename));
+                    reportGenerators.Add(new JsonReport(systemIO, filename, opts.Title));
                 }
                 if (format == OutputFormat.HTML)
                 {
-                    reportGenerators.Add(new HTMLReport(systemIO, filename, opts.NumberOfFilesInList));
+                    reportGenerators.Add(new HTMLReport(systemIO, filename, opts.Title, opts.NumberOfFilesInList));
                 }
             }
             return reportGenerators;

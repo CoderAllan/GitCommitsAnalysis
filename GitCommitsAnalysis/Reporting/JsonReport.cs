@@ -9,11 +9,13 @@ namespace GitCommitsAnalysis.Reporting
     public class JsonReport : IReport
     {
         private string reportFilename;
+        private string title;
         private ISystemIO systemIO;
-        public JsonReport(ISystemIO systemIO, string reportFilename)
+        public JsonReport(ISystemIO systemIO, string reportFilename, string title)
         {
-            this.systemIO = systemIO;
             this.reportFilename = reportFilename;
+            this.title = title;
+            this.systemIO = systemIO;
         }
 
         public void Generate(
@@ -26,7 +28,8 @@ namespace GitCommitsAnalysis.Reporting
             )
         {
             Console.WriteLine("Generating Json file...");
-            systemIO.WriteAllText($"{reportFilename}.json", JsonConvert.SerializeObject(new { 
+            systemIO.WriteAllText($"{reportFilename}.json", JsonConvert.SerializeObject(new {
+                title,
                 fileCommits,
                 userfileCommits,
                 folderCommits,

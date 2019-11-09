@@ -9,7 +9,7 @@ namespace GitCommitsAnalysis.Reporting
 {
     public class TextFileReport : BaseReport, IReport
     {
-        public TextFileReport(ISystemIO systemIO, string reportFilename, int numberOfFilesToList) : base(systemIO, reportFilename, numberOfFilesToList)
+        public TextFileReport(ISystemIO systemIO, string reportFilename, string title, int numberOfFilesToList) : base(systemIO, reportFilename, title, numberOfFilesToList)
         {
         }
 
@@ -28,6 +28,7 @@ namespace GitCommitsAnalysis.Reporting
             var userfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
 
             var totalCommits = fileCommitsList.Sum(fc => fc.CommitCount);
+            sb.AppendLine($"{Title}\n");
             sb.AppendLine($"Total number of Commits analyzed: {totalCommits}");
 
             var folderCommitsList = folderCommits.Values.OrderByDescending(fc => fc.CommitCount);

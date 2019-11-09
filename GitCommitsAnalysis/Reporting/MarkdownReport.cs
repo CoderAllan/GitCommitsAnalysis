@@ -10,7 +10,7 @@ namespace GitCommitsAnalysis.Reporting
 
     public class MarkdownReport : BaseReport, IReport
     {
-        public MarkdownReport(ISystemIO systemIO, string reportFilename, int numberOfFilesToList) : base(systemIO, reportFilename, numberOfFilesToList)
+        public MarkdownReport(ISystemIO systemIO, string reportFilename, string title, int numberOfFilesToList) : base(systemIO, reportFilename, title, numberOfFilesToList)
         {
         }
 
@@ -25,7 +25,7 @@ namespace GitCommitsAnalysis.Reporting
         {
             Console.WriteLine("Generating Markdown report...");
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("# GitCommitsAnalysis\n");
+            sb.AppendLine($"# {Title}\n");
             var fileCommitsList = fileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
             var userfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
 

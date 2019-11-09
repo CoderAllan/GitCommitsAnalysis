@@ -9,7 +9,7 @@ namespace GitCommitsAnalysis.Reporting
 {
     public class HTMLReport : BaseReport, IReport
     {
-        public HTMLReport(ISystemIO systemIO, string reportFilename, int numberOfFilesToList) : base(systemIO, reportFilename, numberOfFilesToList)
+        public HTMLReport(ISystemIO systemIO, string reportFilename, string title, int numberOfFilesToList) : base(systemIO, reportFilename, title, numberOfFilesToList)
         {
         }
 
@@ -77,7 +77,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
             sb.AppendLine("<div class=\"container\">");
-            sb.AppendLine("<h1 id=\"GitCommitsAnalysis\">GitCommitsAnalysis</h1>");
+            sb.AppendLine($"<h1 id=\"gitCommitsAnalysis\">{Title}</h1>");
         }
 
         private void AddFooter(StringBuilder sb)
