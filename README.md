@@ -66,6 +66,8 @@ The calculation of the Cyclomatic Complexity i found over at [Jakob Reimers Arch
 
 [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/) for generating the Json dump of the analysis data.
 
+[TypeScriptAST](https://github.com/ToCSharp/TypeScriptAST) for counting methods and functions in Typescript files.
+
 [Google charts](https://developers.google.com/chart) for displaying the pie chart and the scatter charts in the HTML report.
 
 [Bootstrap](https://getbootstrap.com/docs/3.4/getting-started/) for styling the HTML report.
