@@ -81,6 +81,7 @@ namespace GitCommitsAnalysis
                                         methodCount = MethodCounter.Calculate(typeScriptAst, fileContents);
                                     }
                                     linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
+                                    analysis.LinesOfCodeAnalysed += linesOfCode;
                                 }
                                 analysis.FileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode, MethodCount = methodCount };
                             }
