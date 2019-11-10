@@ -4,6 +4,7 @@
  */
 namespace GitCommitsAnalysis.Analysers
 {
+    using System.Collections.Generic;
     using System.Linq;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
@@ -11,23 +12,9 @@ namespace GitCommitsAnalysis.Analysers
 
     public class CyclomaticComplexityCounter
     {
-        public int Calculate(string fileContents)
+        public int Calculate(IEnumerable<MethodDeclarationSyntax> syntaxNode, SyntaxTree syntaxTree)
         {
-            var tree = CSharpSyntaxTree.ParseText(fileContents);
-            var compilation = CSharpCompilation.Create(
-                "x",
-                syntaxTrees: new[] { tree },
-                references:
-                new MetadataReference[]
-                {
-                        MetadataReference.CreateFromFile(typeof (object).Assembly.Location)
-                });
-
-            var model = compilation.GetSemanticModel(tree, true);
-            var syntaxNode = tree
-                .GetRoot()
-                .DescendantNodes()
-                .OfType<MethodDeclarationSyntax>();
+            var model = CodeAnalyser.GetModel(syntaxTree);
             int result = 1;
             foreach(var node in syntaxNode)
             {

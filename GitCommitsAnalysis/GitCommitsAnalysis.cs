@@ -5,6 +5,7 @@ using GitCommitsAnalysis.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Zu.TypeScript;
 
 namespace GitCommitsAnalysis
 {
@@ -33,6 +34,7 @@ namespace GitCommitsAnalysis
                 var renamedFiles = new Dictionary<string, string>();
                 var cyclomaticComplexityCounter = new CyclomaticComplexityCounter();
                 var linesOfCodeCalculator = new LinesOfCodeCalculator();
+                var typeScriptAst = new TypeScriptAST();
                 foreach (var commit in repo.Commits)
                 {
                     var username = commit.Author.Name;
@@ -47,6 +49,7 @@ namespace GitCommitsAnalysis
                         {
                             int linesOfCode = 0;
                             int cyclomaticComplexity = 0;
+                            int methodCount = 0;
                             var fullPath = Path.Combine(rootFolder, change.Path);
                             if (change.Path != change.OldPath)
                             {
@@ -73,11 +76,18 @@ namespace GitCommitsAnalysis
                                     var fileContents = fileHandling.ReadFileContent(fullPath);
                                     if (change.Path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        cyclomaticComplexity = cyclomaticComplexityCounter.Calculate(fileContents);
+                                        var syntaxTree = CodeAnalyser.GetSyntaxTree(fileContents);
+                                        var methodDeclarationNode = CodeAnalyser.GetMethodDeclarationSyntaxe(syntaxTree);
+                                        cyclomaticComplexity = cyclomaticComplexityCounter.Calculate(methodDeclarationNode, syntaxTree);
+                                        methodCount = MethodCounter.Calculate(methodDeclarationNode);
+                                    }
+                                    else if (change.Path.EndsWith(".ts", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        methodCount = MethodCounter.Calculate(typeScriptAst, fileContents);
                                     }
                                     linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
                                 }
-                                fileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode };
+                                fileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode, MethodCount = methodCount };
                             }
                             fileCommits[filename].CommitDates.Add(commitDate);
 

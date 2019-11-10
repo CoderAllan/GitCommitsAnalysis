@@ -223,12 +223,14 @@ namespace GitCommitsAnalysis.Reporting
         {
             var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
             var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
+            var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A";
             sb.AppendLine("<div class=\"row\"><div class=\"col-md-6\">");
             sb.AppendLine($"<h3>{fileChange.Filename}</h3>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
             sb.AppendLine($"<tr><td class=\"text-right\">Commits</td><td>{fileChange.CommitCount}</td></tr>");
             sb.AppendLine($"<tr><td class=\"text-right\">Lines of code</td><td>{linesOfCode}</td></tr>");
             sb.AppendLine($"<tr><td class=\"text-right\">Cyclomatic Complexity</td><td>{cyclomaticComplexity}</td></tr>");
+            sb.AppendLine($"<tr><td class=\"text-right\">Method count</td><td>{methodCount}</td></tr>");
             sb.AppendLine("</table>");
             sb.AppendLine("</div>");
             sb.AppendLine("<div class=\"col-md-6\">");

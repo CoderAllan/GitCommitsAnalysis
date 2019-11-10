@@ -50,12 +50,14 @@ namespace GitCommitsAnalysis.Reporting
             {
                 var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
                 var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
+                var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A";
                 sb.AppendLine($"### {fileChange.Filename}\n");
                 sb.AppendLine("| | |");
                 sb.AppendLine("|---:|----:|");
                 sb.AppendLine($"| Commits | {fileChange.CommitCount} |");
                 sb.AppendLine($"| Lines of code | {linesOfCode} |");
                 sb.AppendLine($"| Cyclomatic Complexity | {cyclomaticComplexity} |");
+                sb.AppendLine($"| Method count | {methodCount} |");
                 sb.AppendLine();
 
                 sb.AppendLine("__Commits by user:__\n");
