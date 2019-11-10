@@ -59,6 +59,7 @@ namespace GitCommitsAnalysis
                                 }
                             }
                             string filename = renamedFiles.ContainsKey(change.OldPath) ? renamedFiles[change.OldPath] : change.Path;
+                            var fileType = Path.GetExtension(filename);
 
                             if (analysis.FileCommits.ContainsKey(filename))
                             {
@@ -84,6 +85,7 @@ namespace GitCommitsAnalysis
                                     analysis.LinesOfCodeAnalysed += linesOfCode;
                                 }
                                 analysis.FileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode, MethodCount = methodCount };
+                                IncDictionaryValue(analysis.FileTypes, fileType);
                             }
                             analysis.FileCommits[filename].CommitDates.Add(commitDate);
 
@@ -120,7 +122,7 @@ namespace GitCommitsAnalysis
             return folderName;
         }
 
-        private static void IncDictionaryValue(Dictionary<DateTime, int> dictionary, DateTime key, int increment = 1)
+        private static void IncDictionaryValue<T>(Dictionary<T, int> dictionary, T key, int increment = 1)
         {
             if (dictionary.ContainsKey(key))
             {
