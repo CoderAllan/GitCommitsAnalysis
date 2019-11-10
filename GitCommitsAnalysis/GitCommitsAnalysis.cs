@@ -34,6 +34,7 @@ namespace GitCommitsAnalysis
                 {
                     var username = commit.Author.Name;
                     var commitDate = commit.Author.When.UtcDateTime.Date;
+                    UpdateAnalysisCommitDates(analysis, commitDate);
                     IncDictionaryValue(analysis.CommitsEachDay, commitDate);
                     foreach (var parent in commit.Parents)
                     {
@@ -132,7 +133,18 @@ namespace GitCommitsAnalysis
             {
                 dictionary[key] = increment;
             }
+        }
 
+        private static void UpdateAnalysisCommitDates(Analysis analysis, DateTime commitDate)
+        {
+            if(commitDate < analysis.FirstCommitDate)
+            {
+                analysis.FirstCommitDate = commitDate;
+            } 
+            else if (commitDate > analysis.LatestCommitDate)
+            {
+                analysis.LatestCommitDate = commitDate;
+            }
         }
     }
 }

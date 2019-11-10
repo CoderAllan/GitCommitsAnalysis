@@ -6,6 +6,8 @@ namespace GitCommitsAnalysis.Model
     public class Analysis
     {
         public DateTime CreatedDate { get; } = DateTime.UtcNow;
+        public DateTime FirstCommitDate { get; set; } = DateTime.MaxValue;
+        public DateTime LatestCommitDate { get; set; } = DateTime.MinValue;
         public long AnalysisTime { get; set; }
         public long LinesOfCodeAnalysed { get; set; } = 0;
         public Dictionary<DateTime, int> CommitsEachDay { get; } = new Dictionary<DateTime, int>();
