@@ -28,7 +28,7 @@ namespace GitCommitsAnalysis.Reporting
             this.FolderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.CommitCount);
 
             StringBuilder sb = new StringBuilder();
-            AddHeader(sb);
+            AddHeader(sb, analysis);
             AddNavTabs(sb);
             sb.AppendLine("<div class=\"tab-content\">");
             sb.AppendLine("<div role=\"tabpanel\" class=\"tab-pane active\" id=\"commitsForEachSubfolder\">");
@@ -50,7 +50,7 @@ namespace GitCommitsAnalysis.Reporting
             SystemIO.WriteAllText($"{ReportFilename}.html", sb.ToString());
         }
 
-        private void AddHeader(StringBuilder sb)
+        private void AddHeader(StringBuilder sb, Analysis analysis)
         {
             sb.AppendLine("<html><head>");
             sb.AppendLine("<link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\" integrity=\"sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu\" crossorigin=\"anonymous\">");
@@ -66,6 +66,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<body>");
             sb.AppendLine("<div class=\"container\">");
             sb.AppendLine($"<h1 id=\"gitCommitsAnalysis\">{Title}</h1>");
+            sb.AppendLine($"<div class=\"text-right\">Report created: {analysis.CreatedDate.ToString("yyyy-MM-dd")}</div>");
         }
 
         private void AddFooter(StringBuilder sb)

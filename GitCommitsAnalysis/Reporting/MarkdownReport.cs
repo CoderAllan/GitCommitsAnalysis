@@ -18,6 +18,7 @@ namespace GitCommitsAnalysis.Reporting
             Console.WriteLine("Generating Markdown report...");
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"# {Title}\n");
+            sb.AppendLine($"Report created: {analysis.CreatedDate.ToString("yyyy-MM-dd")}\n");
             var fileCommitsList = analysis.FileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
             var userfileCommitsList = analysis.UserfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
 

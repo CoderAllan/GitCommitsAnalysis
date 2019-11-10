@@ -5,6 +5,7 @@ namespace GitCommitsAnalysis.Model
 {
     public class Analysis
     {
+        public DateTime CreatedDate { get; } = DateTime.UtcNow;
         public Dictionary<DateTime, int> CommitsEachDay { get; } = new Dictionary<DateTime, int>();
         public Dictionary<DateTime, int> LinesOfCodeAddedEachDay { get; } = new Dictionary<DateTime, int>();
         public Dictionary<DateTime, int> LinesOfCodeDeletedEachDay { get; } = new Dictionary<DateTime, int>();

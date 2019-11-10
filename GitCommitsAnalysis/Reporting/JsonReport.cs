@@ -22,6 +22,7 @@ namespace GitCommitsAnalysis.Reporting
             Console.WriteLine("Generating Json file...");
             systemIO.WriteAllText($"{reportFilename}.json", JsonConvert.SerializeObject(new {
                 title,
+                analysis.CreatedDate,
                 analysis.FileCommits,
                 analysis.UserfileCommits,
                 analysis.FolderCommits,

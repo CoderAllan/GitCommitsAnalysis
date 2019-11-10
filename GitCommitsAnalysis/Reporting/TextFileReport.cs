@@ -21,6 +21,7 @@ namespace GitCommitsAnalysis.Reporting
 
             var totalCommits = fileCommitsList.Sum(fc => fc.CommitCount);
             sb.AppendLine($"{Title}\n");
+            sb.AppendLine($"Report created: {analysis.CreatedDate.ToString("yyyy-MM-dd")}");
             sb.AppendLine($"Total number of Commits analyzed: {totalCommits}");
 
             var folderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.CommitCount);
