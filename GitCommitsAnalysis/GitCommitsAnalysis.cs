@@ -96,7 +96,7 @@ namespace GitCommitsAnalysis
                         }
                     }
                 }
-
+                analysis.AnalysisTime = (DateTime.UtcNow.Ticks - analysis.CreatedDate.Ticks) / 10000; // Analysis time in miliseconds
                 foreach (var report in reports)
                 {
                     report.Generate(analysis);
