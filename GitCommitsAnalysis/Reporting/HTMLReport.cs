@@ -13,31 +13,19 @@ namespace GitCommitsAnalysis.Reporting
         {
         }
 
-        public void Generate(
-            Dictionary<string, FileStat> fileCommits,
-            Dictionary<string, FileStat> userfileCommits,
-            Dictionary<string, FileStat> folderCommits,
-            Dictionary<DateTime, int> commitsEachDay,
-            Dictionary<DateTime, int> linesOfCodeAddedEachDay,
-            Dictionary<DateTime, int> linesOfCodeDeletedEachDay
-            )
+        public void Generate(Analysis analysis)
         {
             Console.WriteLine("Generating HTML report...");
-            if (fileCommits == null) throw new ArgumentException("Parameter fileCommits is null.", nameof(fileCommits));
-            if (userfileCommits == null) throw new ArgumentException("Parameter userfileCommits is null.", nameof(userfileCommits));
-            if (folderCommits == null) throw new ArgumentException("Parameter folderCommits is null.", nameof(folderCommits));
-            if (commitsEachDay == null) throw new ArgumentException("Parameter commitsEachDay is null.", nameof(commitsEachDay));
-            if (linesOfCodeAddedEachDay == null) throw new ArgumentException("Parameter linesOfCodeAddedEachDay is null.", nameof(linesOfCodeAddedEachDay));
-            if (linesOfCodeDeletedEachDay == null) throw new ArgumentException("Parameter linesOfCodeDeletedEachDay is null.", nameof(linesOfCodeDeletedEachDay));
-            this.FileCommitsList = fileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
-            this.UserfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
+            if (analysis == null) throw new ArgumentException("Parameter analysis is null.", nameof(analysis));
+            this.FileCommitsList = analysis.FileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
+            this.UserfileCommitsList = analysis.UserfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
             var key = 1;
-            foreach (var username in userfileCommits.Values.Select(fc => fc.Username).Distinct().OrderBy(un => un))
+            foreach (var username in analysis.UserfileCommits.Values.Select(fc => fc.Username).Distinct().OrderBy(un => un))
             {
                 UserNameKey.Add(username, key++);
             };
-            this.FolderCommits = folderCommits;
-            this.FolderCommitsList = folderCommits.Values.OrderByDescending(fc => fc.CommitCount);
+            this.FolderCommits = analysis.FolderCommits;
+            this.FolderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.CommitCount);
 
             StringBuilder sb = new StringBuilder();
             AddHeader(sb);
@@ -53,8 +41,8 @@ namespace GitCommitsAnalysis.Reporting
             }
             sb.AppendLine("</div>");
             sb.AppendLine("<div role=\"tabpanel\" class=\"tab-pane\" id=\"activityEachDay\">");
-            AddSectionCommitsForEachDay(sb, commitsEachDay);
-            AddSectionLinesChangedEachDay(sb, linesOfCodeAddedEachDay, linesOfCodeDeletedEachDay);
+            AddSectionCommitsForEachDay(sb, analysis.CommitsEachDay);
+            AddSectionLinesChangedEachDay(sb, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
             sb.AppendLine("</div>");
             sb.AppendLine("</div>");
             AddFooter(sb);

@@ -25,12 +25,7 @@ namespace GitCommitsAnalysis
             Console.WriteLine("Analysing commits...");
             using (var repo = new Repository(rootFolder))
             {
-                var commitsEachDay = new Dictionary<DateTime, int>();
-                var linesOfCodeAddedEachDay = new Dictionary<DateTime, int>();
-                var linesOfCodeDeletedEachDay = new Dictionary<DateTime, int>();
-                var fileCommits = new Dictionary<string, FileStat>();
-                var folderCommits = new Dictionary<string, FileStat>();
-                var userfileCommits = new Dictionary<string, FileStat>();
+                var analysis = new Analysis();
                 var renamedFiles = new Dictionary<string, string>();
                 var cyclomaticComplexityCounter = new CyclomaticComplexityCounter();
                 var linesOfCodeCalculator = new LinesOfCodeCalculator();
@@ -39,12 +34,12 @@ namespace GitCommitsAnalysis
                 {
                     var username = commit.Author.Name;
                     var commitDate = commit.Author.When.UtcDateTime.Date;
-                    IncDictionaryValue(commitsEachDay, commitDate);
+                    IncDictionaryValue(analysis.CommitsEachDay, commitDate);
                     foreach (var parent in commit.Parents)
                     {
                         var patch = repo.Diff.Compare<Patch>(parent.Tree, commit.Tree);
-                        IncDictionaryValue(linesOfCodeAddedEachDay, commitDate, patch.LinesAdded);
-                        IncDictionaryValue(linesOfCodeDeletedEachDay, commitDate, patch.LinesDeleted);
+                        IncDictionaryValue(analysis.LinesOfCodeAddedEachDay, commitDate, patch.LinesAdded);
+                        IncDictionaryValue(analysis.LinesOfCodeDeletedEachDay, commitDate, patch.LinesDeleted);
                         foreach (TreeEntryChanges change in repo.Diff.Compare<TreeChanges>(parent.Tree, commit.Tree))
                         {
                             int linesOfCode = 0;
@@ -53,10 +48,10 @@ namespace GitCommitsAnalysis
                             var fullPath = Path.Combine(rootFolder, change.Path);
                             if (change.Path != change.OldPath)
                             {
-                                if (fileCommits.ContainsKey(change.OldPath))
+                                if (analysis.FileCommits.ContainsKey(change.OldPath))
                                 {
-                                    fileCommits[change.Path] = fileCommits[change.OldPath];
-                                    fileCommits.Remove(change.OldPath);
+                                    analysis.FileCommits[change.Path] = analysis.FileCommits[change.OldPath];
+                                    analysis.FileCommits.Remove(change.OldPath);
                                 }
                                 if (!renamedFiles.ContainsKey(change.OldPath))
                                 {
@@ -65,9 +60,9 @@ namespace GitCommitsAnalysis
                             }
                             string filename = renamedFiles.ContainsKey(change.OldPath) ? renamedFiles[change.OldPath] : change.Path;
 
-                            if (fileCommits.ContainsKey(filename))
+                            if (analysis.FileCommits.ContainsKey(filename))
                             {
-                                fileCommits[filename].CommitCount++;
+                                analysis.FileCommits[filename].CommitCount++;
                             }
                             else
                             {
@@ -87,24 +82,24 @@ namespace GitCommitsAnalysis
                                     }
                                     linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
                                 }
-                                fileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode, MethodCount = methodCount };
+                                analysis.FileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode, MethodCount = methodCount };
                             }
-                            fileCommits[filename].CommitDates.Add(commitDate);
+                            analysis.FileCommits[filename].CommitDates.Add(commitDate);
 
                             var folderName = getRootFolder(filename);
-                            if (folderCommits.ContainsKey(folderName)) { folderCommits[folderName].CommitCount++; } else { folderCommits[folderName] = new FileStat { Filename = folderName }; }
-                            folderCommits[folderName].CommitDates.Add(commitDate);
+                            if (analysis.FolderCommits.ContainsKey(folderName)) { analysis.FolderCommits[folderName].CommitCount++; } else { analysis.FolderCommits[folderName] = new FileStat { Filename = folderName }; }
+                            analysis.FolderCommits[folderName].CommitDates.Add(commitDate);
 
                             var usernameFilename = UsernameFilename.GetDictKey(filename, username);
-                            if (userfileCommits.ContainsKey(usernameFilename)) { userfileCommits[usernameFilename].CommitCount++; } else { userfileCommits[usernameFilename] = new FileStat { Filename = filename, Username = username }; }
-                            userfileCommits[usernameFilename].CommitDates.Add(commitDate);
+                            if (analysis.UserfileCommits.ContainsKey(usernameFilename)) { analysis.UserfileCommits[usernameFilename].CommitCount++; } else { analysis.UserfileCommits[usernameFilename] = new FileStat { Filename = filename, Username = username }; }
+                            analysis.UserfileCommits[usernameFilename].CommitDates.Add(commitDate);
                         }
                     }
                 }
 
                 foreach (var report in reports)
                 {
-                    report.Generate(fileCommits, userfileCommits, folderCommits, commitsEachDay, linesOfCodeAddedEachDay, linesOfCodeDeletedEachDay);
+                    report.Generate(analysis);
                 }
             }
         }

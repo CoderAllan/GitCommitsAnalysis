@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using GitCommitsAnalysis.Interfaces;
@@ -14,30 +13,23 @@ namespace GitCommitsAnalysis.Reporting
         {
         }
 
-        public void Generate(
-            Dictionary<string, FileStat> fileCommits,
-            Dictionary<string, FileStat> userfileCommits,
-            Dictionary<string, FileStat> folderCommits,
-            Dictionary<DateTime, int> commitsEachDay,
-            Dictionary<DateTime, int> linesOfCodeAddedEachDay,
-            Dictionary<DateTime, int> linesOfCodeDeletedEachDay
-            )
+        public void Generate(Analysis analysis)
         {
             Console.WriteLine("Generating Markdown report...");
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"# {Title}\n");
-            var fileCommitsList = fileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
-            var userfileCommitsList = userfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
+            var fileCommitsList = analysis.FileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
+            var userfileCommitsList = analysis.UserfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
 
 
             var totalCommits = fileCommitsList.Sum(fc => fc.CommitCount);
             sb.AppendLine("## Commits for each subfolder");
-            var folderCommitsList = folderCommits.Values.OrderByDescending(fc => fc.CommitCount);
+            var folderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.CommitCount);
             foreach (var folder in folderCommitsList.Take(NumberOfFilesToList))
             {
                 var folderName = string.Format("{0,50}", folder.Filename);
-                var changeCount = string.Format("{0,5}", folderCommits[folder.Filename].CommitCount);
-                var percentage = string.Format("{0,5:#0.00}", ((double)folderCommits[folder.Filename].CommitCount / (double)totalCommits) * 100);
+                var changeCount = string.Format("{0,5}", analysis.FolderCommits[folder.Filename].CommitCount);
+                var percentage = string.Format("{0,5:#0.00}", ((double)analysis.FolderCommits[folder.Filename].CommitCount / (double)totalCommits) * 100);
                 sb.AppendLine($"{folderName}: {changeCount} ({percentage}%)");
             }
             sb.AppendLine($"{string.Format("{0,51}", "---------------")} {string.Format("{0,6}", "-----")} {string.Format("{0,7}", "------")}");

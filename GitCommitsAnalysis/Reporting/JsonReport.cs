@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using GitCommitsAnalysis.Interfaces;
 using GitCommitsAnalysis.Model;
@@ -18,24 +17,17 @@ namespace GitCommitsAnalysis.Reporting
             this.systemIO = systemIO;
         }
 
-        public void Generate(
-            Dictionary<string, FileStat> fileCommits,
-            Dictionary<string, FileStat> userfileCommits,
-            Dictionary<string, FileStat> folderCommits,
-            Dictionary<DateTime, int> commitsEachDay,
-            Dictionary<DateTime, int> linesOfCodeAddedEachDay,
-            Dictionary<DateTime, int> linesOfCodeDeletedEachDay
-            )
+        public void Generate(Analysis analysis)
         {
             Console.WriteLine("Generating Json file...");
             systemIO.WriteAllText($"{reportFilename}.json", JsonConvert.SerializeObject(new {
                 title,
-                fileCommits,
-                userfileCommits,
-                folderCommits,
-                commitsEachDay,
-                linesOfCodeAddedEachDay,
-                linesOfCodeDeletedEachDay
+                analysis.FileCommits,
+                analysis.UserfileCommits,
+                analysis.FolderCommits,
+                analysis.CommitsEachDay,
+                analysis.LinesOfCodeAddedEachDay,
+                analysis.LinesOfCodeDeletedEachDay
             }));
         }
     }
