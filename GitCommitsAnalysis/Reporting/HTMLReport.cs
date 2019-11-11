@@ -44,6 +44,7 @@ namespace GitCommitsAnalysis.Reporting
             AddSectionProjectStatistics(sb, analysis);
             AddSectionCommitsForEachDay(sb, analysis.CommitsEachDay);
             AddSectionLinesChangedEachDay(sb, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
+            AddSectionFileTypes(sb, analysis.FileTypes);
             sb.AppendLine("</div>");
             sb.AppendLine("</div>");
             AddFooter(sb);
@@ -221,6 +222,29 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("");
             AddLinesChangedEachDayChartJavascript(sb, linesOfCodeAddedEachDay, linesOfCodeDeletedEachDay);
             sb.AppendLine("<div id=\"linesChangedEachDayChart\"></div>");
+            sb.AppendLine("</div></div>");
+        }
+
+        private void AddSectionFileTypes(StringBuilder sb, Dictionary<string, int> fileTypes)
+        {
+            var fileTypesOrdered = fileTypes.AsEnumerable().OrderByDescending(kvp => kvp.Value).ThenBy(kvp => kvp.Key);
+            sb.AppendLine("<div class=\"row\">");
+            sb.AppendLine("<div class=\"col\">");
+            sb.AppendLine("<h2>Number of files of each type</h2>");
+            sb.AppendLine("<table class=\"table pull-left\" style=\"width: auto\">");
+            sb.AppendLine($"<tr><th class=\"text-right\">Filetype</th><th>Count</th></tr>");
+            int rowCounter = 1;
+            foreach (var kvp in fileTypesOrdered)
+            {
+                sb.AppendLine($"<tr><td class=\"text-right\">{kvp.Key}</td><td class=\"text-right\">{kvp.Value}</td></tr>");
+                if (rowCounter++ % 10 == 0)
+                {
+                    sb.AppendLine("</table>");
+                    sb.AppendLine("<table class=\"table pull-left\" style=\"width: auto\">");
+                    sb.AppendLine($"<tr><th class=\"text-right\">Filetype</th><th>Count</th></tr>");
+                }
+            }
+            sb.AppendLine("</table>");
             sb.AppendLine("</div></div>");
         }
 

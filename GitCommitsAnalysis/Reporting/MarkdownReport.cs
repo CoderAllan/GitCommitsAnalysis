@@ -77,6 +77,16 @@ namespace GitCommitsAnalysis.Reporting
                 }
                 sb.AppendLine();
             }
+
+            var fileTypesOrdered = analysis.FileTypes.AsEnumerable().OrderByDescending(kvp => kvp.Value).ThenBy(kvp => kvp.Key);
+            sb.AppendLine("## Number of files of each type\n");
+            sb.AppendLine("| | |");
+            sb.AppendLine("|---:|----:|");
+            foreach (var kvp in fileTypesOrdered)
+            {
+                sb.AppendLine($"| {kvp.Key} | {kvp.Value} |");
+            }
+
             SystemIO.WriteAllText($"{ReportFilename}.md", sb.ToString());
         }
     }
