@@ -40,7 +40,8 @@ namespace GitCommitsAnalysis.Reporting
                 AddSectionCommitsForEachFile(sb, fileChange, sectionCounter++);
             }
             sb.AppendLine("</div>");
-            sb.AppendLine("<div role=\"tabpanel\" class=\"tab-pane\" id=\"activityEachDay\">");
+            sb.AppendLine("<div role=\"tabpanel\" class=\"tab-pane\" id=\"projectStatistics\">");
+            AddSectionProjectStatistics(sb, analysis);
             AddSectionCommitsForEachDay(sb, analysis.CommitsEachDay);
             AddSectionLinesChangedEachDay(sb, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
             sb.AppendLine("</div>");
@@ -86,7 +87,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</script>");
             sb.AppendLine("<ul class=\"nav nav-tabs\" role=\"tablist\" id=\"tabs\">");
             sb.AppendLine("<li role=\"presentation\" class=\"active\"><a href=\"#commitsForEachSubfolder\" aria-controls=\"home\" role=\"tab\" data-toggle=\"tab\">Commits for each subfolder</a></li>");
-            sb.AppendLine("<li role=\"presentation\"><a href=\"#activityEachDay\" aria-controls=\"activityEachDay\" role=\"tab\" data-toggle=\"tab\">Activity each date</a></li>");
+            sb.AppendLine("<li role=\"presentation\"><a href=\"#projectStatistics\" aria-controls=\"projectStatistics\" role=\"tab\" data-toggle=\"tab\">Statistics</a></li>");
             sb.AppendLine("</ul>");
         }
 
@@ -133,6 +134,23 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</div></div>");
         }
 
+        private void AddSectionProjectStatistics(StringBuilder sb, Analysis analysis)
+        {
+            var totalCommits = FileCommitsList.Sum(fc => fc.CommitCount);
+            var numberOfAuthors = UserfileCommitsList.Select(ufc => ufc.Username).Distinct().Count();
+            sb.AppendLine("<div class=\"row\">");
+            sb.AppendLine("<div class=\"col\">");
+            sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
+            sb.AppendLine($"<tr><td class=\"text-right\">First commit</td><td class=\"text-right\">{analysis.FirstCommitDate.ToString("yyyy-MM-dd")}</td></tr>");
+            sb.AppendLine($"<tr><td class=\"text-right\">Latest commit</td><td class=\"text-right\">{analysis.LatestCommitDate.ToString("yyyy-MM-dd")}</td></tr>");
+            sb.AppendLine($"<tr><td class=\"text-right\">Number of commits</td><td class=\"text-right\">{totalCommits}</td></tr>");
+            sb.AppendLine($"<tr><td class=\"text-right\">Lines of code analysed</td><td class=\"text-right\">{analysis.LinesOfCodeAnalysed}</td></tr>");
+            sb.AppendLine($"<tr><td class=\"text-right\">Number of authors</td><td class=\"text-right\">{numberOfAuthors}</td></tr>");
+            sb.AppendLine($"<tr><td class=\"text-right\">Analysis time(milliseconds)</td><td class=\"text-right\">{analysis.AnalysisTime}</td></tr>");
+            sb.AppendLine("</table>");
+            sb.AppendLine("</div></div>");
+        }
+
         private void AddcommitsEachDayChartJavascript(StringBuilder sb, Dictionary<DateTime, int> commitsEachDay)
         {
             sb.AppendLine("<script type=\"text/javascript\">");
@@ -160,11 +178,9 @@ namespace GitCommitsAnalysis.Reporting
 
         private void AddSectionCommitsForEachDay(StringBuilder sb, Dictionary<DateTime, int> commitsEachDay)
         {
-            // var totalCommits = FileCommitsList.Sum(fc => fc.CommitCount);
             sb.AppendLine("<div class=\"row\">");
             sb.AppendLine("<div class=\"col\">");
             sb.AppendLine("<h2>Commits for each day</h2>");
-            sb.AppendLine("");
             AddcommitsEachDayChartJavascript(sb, commitsEachDay);
             sb.AppendLine("<div id=\"commitsEachDayChart\"></div>");
             sb.AppendLine("</div></div>");

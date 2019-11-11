@@ -16,13 +16,20 @@ namespace GitCommitsAnalysis.Reporting
         {
             Console.WriteLine("Generating Textfile report...");
             StringBuilder sb = new StringBuilder();
-            var fileCommitsList = analysis.FileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
-            var userfileCommitsList = analysis.UserfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
+            FileCommitsList = analysis.FileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
+            UserfileCommitsList = analysis.UserfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
 
-            var totalCommits = fileCommitsList.Sum(fc => fc.CommitCount);
+            var totalCommits = FileCommitsList.Sum(fc => fc.CommitCount);
+            var numberOfAuthors = UserfileCommitsList.Select(ufc => ufc.Username).Distinct().Count();
             sb.AppendLine($"{Title}\n");
             sb.AppendLine($"Report created: {analysis.CreatedDate.ToString("yyyy-MM-dd")}");
-            sb.AppendLine($"Total number of Commits analyzed: {totalCommits}");
+            sb.AppendLine($"First commit: {analysis.FirstCommitDate.ToString("yyyy-MM-dd")}");
+            sb.AppendLine($"Latest commit: {analysis.LatestCommitDate.ToString("yyyy-MM-dd")}");
+            sb.AppendLine($"Number of commits: {totalCommits}");
+            sb.AppendLine($"Lines of code analysed: {analysis.LinesOfCodeAnalysed}");
+            sb.AppendLine($"Number of authors: {numberOfAuthors}");
+            sb.AppendLine($"Analysis time(milliseconds): {analysis.AnalysisTime}");
+            sb.AppendLine();
 
             var folderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.CommitCount);
             foreach (var folder in folderCommitsList.Take(NumberOfFilesToList))
@@ -33,14 +40,14 @@ namespace GitCommitsAnalysis.Reporting
                 sb.AppendLine($"{folderName}: {changeCount} ({percentage}%)");
             }
 
-            foreach (var fileChange in fileCommitsList.Take(50))
+            foreach (var fileChange in FileCommitsList.Take(50))
             {
                 sb.AppendLine("");
                 var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
                 var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
                 var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A";
                 sb.AppendLine($"{fileChange.Filename}: {fileChange.CommitCount} - Lines of code: {linesOfCode} - Cyclomatic Complexity: {cyclomaticComplexity} - Method count: {methodCount}\n");
-                foreach (var userfileChange in userfileCommitsList.Where(ufc => ufc.Filename == fileChange.Filename))
+                foreach (var userfileChange in UserfileCommitsList.Where(ufc => ufc.Filename == fileChange.Filename))
                 {
                     var username = string.Format("{0,20}", userfileChange.Username);
                     var changeCount = string.Format("{0,3}", userfileChange.CommitCount);
