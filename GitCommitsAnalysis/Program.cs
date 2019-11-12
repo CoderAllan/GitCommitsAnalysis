@@ -14,13 +14,13 @@ namespace GitCommitsAnalysis
             using (var parser = new Parser(with => with.HelpWriter = null))
             {
                 var parserResult = parser.ParseArguments<Options>(args);
-                parserResult.WithParsed(opts =>
+                parserResult.WithParsed(options =>
                 {
                     var systemIO = new SystemIO();
-                    var reports = getReportGenerators(opts, systemIO);
-                    var GitCommitsAnalysis = new GitCommitsAnalysis(systemIO, reports);
+                    var reports = getReportGenerators(options, systemIO);
+                    var GitCommitsAnalysis = new GitCommitsAnalysis(systemIO, reports, options);
 
-                    GitCommitsAnalysis.PerformAnalysis(opts.RootFolder);
+                    GitCommitsAnalysis.PerformAnalysis(options.RootFolder);
                 }).WithNotParsed(x =>
                 {
                     var helpText = HelpText.AutoBuild(parserResult, h =>

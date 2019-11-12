@@ -5,6 +5,7 @@ using GitCommitsAnalysis.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Zu.TypeScript;
 
 namespace GitCommitsAnalysis
@@ -13,11 +14,13 @@ namespace GitCommitsAnalysis
     {
         private ISystemIO fileHandling;
         private IEnumerable<IReport> reports;
+        private Options options;
 
-        public GitCommitsAnalysis(ISystemIO fileHandling, IEnumerable<IReport> reports)
+        public GitCommitsAnalysis(ISystemIO fileHandling, IEnumerable<IReport> reports, Options options)
         {
             this.fileHandling = fileHandling;
             this.reports = reports;
+            this.options = options;
         }
 
         public void PerformAnalysis(string rootFolder)
@@ -46,6 +49,15 @@ namespace GitCommitsAnalysis
                             int linesOfCode = 0;
                             int cyclomaticComplexity = 0;
                             int methodCount = 0;
+                            var fileExtension = Path.GetExtension(change.Path);
+                            if (!string.IsNullOrEmpty(fileExtension))
+                            {
+                                fileExtension = fileExtension.Substring(1);
+                                if (options.IgnoredFiletypes != null && options.IgnoredFiletypes.Any() && options.IgnoredFiletypes.Contains(fileExtension))
+                                {
+                                    break;
+                                }
+                            }
                             var fullPath = Path.Combine(rootFolder, change.Path);
                             if (change.Path != change.OldPath)
                             {

@@ -22,6 +22,9 @@ namespace GitCommitsAnalysis
 
         [Option('t', "title", Default = "GitCommitsAnalysis", HelpText = "The title to appear in the top of the reports")]
         public string Title { get; set; }
+
+        [Option('i', "ignoredfiletypes", HelpText = "The filetypes to ignore when analysing the Git repository.. Eg. '-i csproj npmrc gitignore'")]
+        public IEnumerable<string> IgnoredFiletypes { get; set; }
     }
 
     public enum OutputFormat
