@@ -49,15 +49,6 @@ namespace GitCommitsAnalysis
                             int linesOfCode = 0;
                             int cyclomaticComplexity = 0;
                             int methodCount = 0;
-                            var fileExtension = Path.GetExtension(change.Path);
-                            if (!string.IsNullOrEmpty(fileExtension))
-                            {
-                                fileExtension = fileExtension.Substring(1);
-                                if (options.IgnoredFiletypes != null && options.IgnoredFiletypes.Any() && options.IgnoredFiletypes.Contains(fileExtension))
-                                {
-                                    break;
-                                }
-                            }
                             var fullPath = Path.Combine(rootFolder, change.Path);
                             if (change.Path != change.OldPath)
                             {
@@ -73,6 +64,10 @@ namespace GitCommitsAnalysis
                             }
                             string filename = renamedFiles.ContainsKey(change.OldPath) ? renamedFiles[change.OldPath] : change.Path;
                             var fileType = Path.GetExtension(filename);
+                            if (IgnoreFiletype(fileType))
+                            {
+                                break;
+                            }
 
                             if (analysis.FileCommits.ContainsKey(filename))
                             {
@@ -157,6 +152,19 @@ namespace GitCommitsAnalysis
             {
                 analysis.LatestCommitDate = commitDate;
             }
+        }
+
+        private bool IgnoreFiletype(string fileExtension)
+        {
+            if (!string.IsNullOrEmpty(fileExtension))
+            {
+                fileExtension = fileExtension.Substring(1);
+                if (options.IgnoredFiletypes != null && options.IgnoredFiletypes.Any() && options.IgnoredFiletypes.Contains(fileExtension))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
