@@ -10,10 +10,10 @@ namespace GitCommitsAnalysis.Reporting
         private string reportFilename;
         private string title;
         private ISystemIO systemIO;
-        public JsonReport(ISystemIO systemIO, string reportFilename, string title)
+        public JsonReport(ISystemIO systemIO, string reportFilename, Options options)
         {
             this.reportFilename = reportFilename;
-            this.title = title;
+            this.title = options.Title;
             this.systemIO = systemIO;
         }
 

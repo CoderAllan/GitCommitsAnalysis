@@ -9,7 +9,7 @@ namespace GitCommitsAnalysis.Reporting
 
     public class MarkdownReport : BaseReport, IReport
     {
-        public MarkdownReport(ISystemIO systemIO, string reportFilename, string title, int numberOfFilesToList) : base(systemIO, reportFilename, title, numberOfFilesToList)
+        public MarkdownReport(ISystemIO systemIO, string reportFilename, Options options) : base(systemIO, reportFilename, options)
         {
         }
 

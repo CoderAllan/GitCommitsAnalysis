@@ -8,7 +8,7 @@ namespace GitCommitsAnalysis.Reporting
 {
     public class TextFileReport : BaseReport, IReport
     {
-        public TextFileReport(ISystemIO systemIO, string reportFilename, string title, int numberOfFilesToList) : base(systemIO, reportFilename, title, numberOfFilesToList)
+        public TextFileReport(ISystemIO systemIO, string reportFilename, Options options) : base(systemIO, reportFilename, options)
         {
         }
 

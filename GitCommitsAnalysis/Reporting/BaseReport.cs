@@ -16,12 +16,12 @@ namespace GitCommitsAnalysis.Reporting
         protected IOrderedEnumerable<FileStat> FolderCommitsList { get; set; }
         protected Dictionary<string, int> UserNameKey { get; } = new Dictionary<string, int>();
         protected Dictionary<string, FileStat> FolderCommits { get; set; } = new Dictionary<string, FileStat>();
-        protected BaseReport(ISystemIO systemIO, string reportFilename, string title, int numberOfFilesToList)
+        protected BaseReport(ISystemIO systemIO, string reportFilename, Options options)
         {
             this.SystemIO = systemIO;
             this.ReportFilename = reportFilename;
-            this.Title = title;
-            this.NumberOfFilesToList = numberOfFilesToList;
+            this.Title = options.Title;
+            this.NumberOfFilesToList = options.NumberOfFilesInList;
         }
     }
 }

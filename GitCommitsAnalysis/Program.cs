@@ -34,32 +34,32 @@ namespace GitCommitsAnalysis
             }
         }
 
-        private static List<IReport> getReportGenerators(Options opts, ISystemIO systemIO)
+        private static List<IReport> getReportGenerators(Options options, ISystemIO systemIO)
         {
             var reportGenerators = new List<IReport>();
-            foreach (var format in opts.OutputFormat)
+            foreach (var format in options.OutputFormat)
             {
                 string outputFilename = "GitCommitsAnalysisReport";
-                if (!string.IsNullOrEmpty(opts.ReportFilename))
+                if (!string.IsNullOrEmpty(options.ReportFilename))
                 {
-                    outputFilename = systemIO.GetPathWitoutExtension(opts.ReportFilename);
+                    outputFilename = systemIO.GetPathWitoutExtension(options.ReportFilename);
                 }
-                var filename = $"{opts.OutputFolder}\\{outputFilename}";
+                var filename = $"{options.OutputFolder}\\{outputFilename}";
                 if (format == OutputFormat.Text)
                 {
-                    reportGenerators.Add(new TextFileReport(systemIO, filename, opts.Title, opts.NumberOfFilesInList));
+                    reportGenerators.Add(new TextFileReport(systemIO, filename, options));
                 }
                 if (format == OutputFormat.Markdown)
                 {
-                    reportGenerators.Add(new MarkdownReport(systemIO, filename, opts.Title, opts.NumberOfFilesInList));
+                    reportGenerators.Add(new MarkdownReport(systemIO, filename, options));
                 }
                 if (format == OutputFormat.Json)
                 {
-                    reportGenerators.Add(new JsonReport(systemIO, filename, opts.Title));
+                    reportGenerators.Add(new JsonReport(systemIO, filename, options));
                 }
                 if (format == OutputFormat.HTML)
                 {
-                    reportGenerators.Add(new HTMLReport(systemIO, filename, opts.Title, opts.NumberOfFilesInList));
+                    reportGenerators.Add(new HTMLReport(systemIO, filename, options));
                 }
             }
             return reportGenerators;

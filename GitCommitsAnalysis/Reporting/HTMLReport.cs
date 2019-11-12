@@ -9,7 +9,7 @@ namespace GitCommitsAnalysis.Reporting
 {
     public class HTMLReport : BaseReport, IReport
     {
-        public HTMLReport(ISystemIO systemIO, string reportFilename, string title, int numberOfFilesToList) : base(systemIO, reportFilename, title, numberOfFilesToList)
+        public HTMLReport(ISystemIO systemIO, string reportFilename, Options options) : base(systemIO, reportFilename, options)
         {
         }
 
@@ -55,6 +55,7 @@ namespace GitCommitsAnalysis.Reporting
         private void AddHeader(StringBuilder sb, Analysis analysis)
         {
             sb.AppendLine("<html><head>");
+            sb.AppendLine($"<title>{Title}</title>");
             sb.AppendLine("<link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\" integrity=\"sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu\" crossorigin=\"anonymous\">");
             sb.AppendLine("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js\"></script>");
             sb.AppendLine("<script src=\"https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js\" integrity=\"sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd\" crossorigin=\"anonymous\"></script>");
