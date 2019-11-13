@@ -36,7 +36,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine($"| Analysis time(milliseconds) | {analysis.AnalysisTime} |");
             sb.AppendLine();
 
-            sb.AppendLine("## Commits for each subfolder");
+            sb.AppendLine("## File changes for each subfolder");
             var folderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.CommitCount);
             foreach (var folder in folderCommitsList.Take(NumberOfFilesToList))
             {

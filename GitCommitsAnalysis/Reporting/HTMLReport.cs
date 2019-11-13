@@ -119,7 +119,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<div class=\"col-md-6\">");
             sb.AppendLine("<h2>Commits for each subfolder</h2>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
-            sb.AppendLine("<tr><th class=\"text-right\">Folder</th><th class=\"text-right\">Commits</th></tr>");
+            sb.AppendLine("<tr><th class=\"text-right\">Folder</th><th class=\"text-right\">File changes</th></tr>");
             foreach (var folder in FolderCommitsList.Take(25))
             {
                 var changeCount = string.Format("{0,5}", FolderCommits[folder.Filename].CommitCount);
