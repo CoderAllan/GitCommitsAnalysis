@@ -14,7 +14,7 @@ namespace GitCommitsAnalysis
         [Option('a', "reportfilename", Required = false, HelpText = "The filename the report(s) will be given")]
         public string ReportFilename { get; set; }
 
-        [Option('f', "outputformat", Required = false, HelpText = "The output format(s) to generate. Multiple formats should be space-seperated. Eg. '-f Text Json'")]
+        [Option('f', "outputformat", Required = true, HelpText = "The output format(s) to generate. Multiple formats should be space-seperated. Eg. '-f Text Json'. Valid formats: HTML, Markdown, Json, Text")]
         public IEnumerable<OutputFormat> OutputFormat { get; set; }
 
         [Option('n', "numberoffilestolist", Default = 50, HelpText = "Specifies the number of flies to include in the list of most changes files. (Ignored when output is Json)")]
