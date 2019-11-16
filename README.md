@@ -42,9 +42,10 @@ Copyright (C) 2019 GitCommitsAnalysis
 
   -a, --reportfilename         The filename the report(s) will be given
 
-  -f, --outputformat           The output format(s) to generate. Multiple
-                               formats should be space-seperated. Eg. '-f Text
-                               Json'
+  -f, --outputformat           Required. The output format(s) to generate.
+                               Multiple formats should be space-seperated. Eg.
+                               '-f Text Json'. Valid formats: HTML, Markdown,
+                               Json, Text
 
   -n, --numberoffilestolist    (Default: 50) Specifies the number of flies to
                                include in the list of most changes files.
@@ -52,13 +53,28 @@ Copyright (C) 2019 GitCommitsAnalysis
 
   -t, --title                  (Default: GitCommitsAnalysis) The title to appear
                                in the top of the reports
+
+  -i, --ignoredfiletypes       The filetypes to ignore when analysing the Git
+                               repository.. Eg. '-i csproj npmrc gitignore'
 ```
 
 ## Credits
 
 The calculation of the Cyclomatic Complexity i found over at [Jakob Reimers ArchiMetrics](https://github.com/jjrdk/ArchiMetrics) repository.
 
-### Packages used
+## Contributing
+
+Any ideas, bug reports or help building this tool, is greatly appreciated. Have a look in the [Contributing file](CONTRIBUTING.md) about how to help.
+
+## Screenshots
+
+![Html report](screenshots/HtmlReport1.png)
+
+![Html report](screenshots/HtmlReport2.png)
+
+![Html report](screenshots/HtmlReport3.png)
+
+## Packages used
 
 [CommandLineParser NuGet package](https://www.nuget.org/packages/CommandLineParser/) for parsing the commandline parameters and generating the help page.
 
@@ -74,12 +90,4 @@ The calculation of the Cyclomatic Complexity i found over at [Jakob Reimers Arch
 
 [jQuery](https://jquery.com/) used by the HTML report.
 
-## Contributing
-
-Any ideas, bug reports or help building this tool, is greatly appreciated. Have a look in the [Contributing file](CONTRIBUTING.md) about how to help.
-
-## Screenshots
-
-![Html report](screenshots/HtmlReport1.png)
-
-![Html report](screenshots/HtmlReport2.png)
+[FontAwesome](https://fontawesome.com/) used to add icons for the file changes.
