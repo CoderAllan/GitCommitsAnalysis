@@ -97,37 +97,39 @@ namespace GitCommitsAnalysis
                             }
                             analysis.FileCommits[filename].CommitDates.Add(commitDate);
 
-                            var folderName = getRootFolder(filename);
-                            if (analysis.FolderCommits.ContainsKey(folderName)) { analysis.FolderCommits[folderName].CommitCount++; } else { analysis.FolderCommits[folderName] = new FileStat { Filename = folderName }; }
-                            analysis.FolderCommits[folderName].CommitDates.Add(commitDate);
-
                             var usernameFilename = UsernameFilename.GetDictKey(filename, username);
                             if (analysis.UserfileCommits.ContainsKey(usernameFilename)) { analysis.UserfileCommits[usernameFilename].CommitCount++; } else { analysis.UserfileCommits[usernameFilename] = new FileStat { Filename = filename, Username = username }; }
                             analysis.UserfileCommits[usernameFilename].CommitDates.Add(commitDate);
                         }
                     }
                 }
+                var folderStats = new Dictionary<string, int>();
+                foreach(var fileChange in analysis.FileCommits)
+                {
+                    int commitCount = fileChange.Value.CommitCount;
+                    var folders = fileChange.Key.Split("/");
+                    string root = folders[0];
+                    if(fileChange.Key.IndexOf("/") == -1){
+                        root = ".";
+                    }
+                    IncFolderCommitValue(analysis.FolderCommits, root, commitCount);
+                    analysis.FolderCommits[root].IsRoot = true;
+                    string currentFolder = root;
+                    var children = analysis.FolderCommits[currentFolder].Children;
+                    for(int i = 1; i < folders.Length; i++)
+                    {
+                        currentFolder = folders[i];
+                        IncFolderCommitValue(children, currentFolder, commitCount);
+                        children = children[currentFolder].Children;
+                    }
+                }
+                var o = analysis.FolderCommits.OrderBy(p => p.Key);
                 analysis.AnalysisTime = (DateTime.UtcNow.Ticks - analysis.CreatedDate.Ticks) / 10000; // Analysis time in miliseconds
                 foreach (var report in reports)
                 {
                     report.Generate(analysis);
                 }
             }
-        }
-
-        private static string getRootFolder(string filename)
-        {
-            var folderName = Path.GetDirectoryName(filename);
-            int pos = folderName.IndexOf("\\", StringComparison.OrdinalIgnoreCase);
-            if (pos > -1)
-            {
-                folderName = folderName.Substring(0, pos);
-            }
-            if (folderName.Length == 0)
-            {
-                folderName = ".";
-            }
-            return folderName;
         }
 
         private static void IncDictionaryValue<T>(Dictionary<T, int> dictionary, T key, int increment = 1)
@@ -139,6 +141,22 @@ namespace GitCommitsAnalysis
             else
             {
                 dictionary[key] = increment;
+            }
+        }
+
+        private static void IncFolderCommitValue(Dictionary<string, FolderStat> dictionary, string key, int increment)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                key = ".";
+            }
+            if (dictionary.ContainsKey(key))
+            {
+                dictionary[key].FileChanges += increment;
+            }
+            else
+            {
+                dictionary[key] = new FolderStat(key, increment);
             }
         }
 

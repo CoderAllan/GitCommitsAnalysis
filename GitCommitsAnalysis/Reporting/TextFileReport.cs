@@ -31,12 +31,12 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine($"Analysis time(milliseconds): {analysis.AnalysisTime}");
             sb.AppendLine();
 
-            var folderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.CommitCount);
+            var folderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.FileChanges);
             foreach (var folder in folderCommitsList.Take(NumberOfFilesToList))
             {
-                var folderName = string.Format("{0,50}", folder.Filename);
-                var changeCount = string.Format("{0,5}", analysis.FolderCommits[folder.Filename].CommitCount);
-                var percentage = string.Format("{0,5:#0.00}", ((double)analysis.FolderCommits[folder.Filename].CommitCount / (double)totalCommits) * 100);
+                var folderName = string.Format("{0,50}", folder.FolderName);
+                var changeCount = string.Format("{0,5}", analysis.FolderCommits[folder.FolderName].FileChanges);
+                var percentage = string.Format("{0,5:#0.00}", ((double)analysis.FolderCommits[folder.FolderName].FileChanges / (double)totalCommits) * 100);
                 sb.AppendLine($"{folderName}: {changeCount} ({percentage}%)");
             }
 

@@ -14,7 +14,7 @@ namespace GitCommitsAnalysis.Model
         public Dictionary<DateTime, int> LinesOfCodeAddedEachDay { get; } = new Dictionary<DateTime, int>();
         public Dictionary<DateTime, int> LinesOfCodeDeletedEachDay { get; } = new Dictionary<DateTime, int>();
         public Dictionary<string, FileStat> FileCommits { get; } = new Dictionary<string, FileStat>();
-        public Dictionary<string, FileStat> FolderCommits { get; } = new Dictionary<string, FileStat>();
+        public Dictionary<string, FolderStat> FolderCommits { get; } = new Dictionary<string, FolderStat>();
         public Dictionary<string, FileStat> UserfileCommits { get; } = new Dictionary<string, FileStat>();
         public Dictionary<string, int> FileTypes { get; } = new Dictionary<string, int>();
     }

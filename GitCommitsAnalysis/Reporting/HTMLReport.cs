@@ -25,7 +25,7 @@ namespace GitCommitsAnalysis.Reporting
                 UserNameKey.Add(username, key++);
             };
             this.FolderCommits = analysis.FolderCommits;
-            this.FolderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.CommitCount);
+            this.FolderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.FileChanges);
 
             StringBuilder sb = new StringBuilder();
             AddHeader(sb, analysis);
@@ -63,6 +63,39 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<style>");
             sb.AppendLine("body {");
             sb.AppendLine("   color: black;");
+            sb.AppendLine("}");
+            sb.AppendLine("ul, #myUL {");
+            sb.AppendLine("  list-style-type: none;");
+            sb.AppendLine("}");
+            sb.AppendLine("");
+            sb.AppendLine("#myUL {");
+            sb.AppendLine("  margin: 0;");
+            sb.AppendLine("  padding: 0;");
+            sb.AppendLine("}");
+            sb.AppendLine("");
+            sb.AppendLine(".treeViewCaret {");
+            sb.AppendLine("  cursor: pointer;");
+            sb.AppendLine("  user-select: none; /* Prevent text selection */");
+            sb.AppendLine("  white-space: nowrap;");
+            sb.AppendLine("}");
+            sb.AppendLine("");
+            sb.AppendLine(".treeViewCaret::before {");
+            sb.AppendLine("  content: \"\\25B6\";");
+            sb.AppendLine("  color: black;");
+            sb.AppendLine("  display: inline-block;");
+            sb.AppendLine("  margin-right: 6px;");
+            sb.AppendLine("}");
+            sb.AppendLine("");
+            sb.AppendLine(".caret-down::before {");
+            sb.AppendLine("  transform: rotate(90deg);");
+            sb.AppendLine("}");
+            sb.AppendLine("");
+            sb.AppendLine(".nested {");
+            sb.AppendLine("  display: none;");
+            sb.AppendLine("}");
+            sb.AppendLine("");
+            sb.AppendLine(".active {");
+            sb.AppendLine("  display: contents;");
             sb.AppendLine("}");
             sb.AppendLine("</style>");
             sb.AppendLine("</head>");
@@ -102,7 +135,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("   var data = google.visualization.arrayToDataTable([['Folder', 'Commits'], ");
             foreach (var folder in FolderCommitsList.Take(25))
             {
-                sb.AppendLine($"      ['{folder.Filename}', {folder.CommitCount}],");
+                sb.AppendLine($"      ['{folder.FolderName}', {folder.FileChanges}],");
             }
             sb.AppendLine("   ]);");
             sb.AppendLine("   var options = { title: 'Commits for each subfolder' }; ");
@@ -119,21 +152,74 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<div class=\"col-md-6\">");
             sb.AppendLine("<h2>Commits for each subfolder</h2>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
-            sb.AppendLine("<tr><th class=\"text-right\">Folder</th><th class=\"text-right\">File changes</th></tr>");
+            sb.AppendLine("<tr><th class=\"text-right\">Folder</th><th class=\"text-right\">File changes</th><th></th></tr>");
+            int folderCounter = 1;
             foreach (var folder in FolderCommitsList.Take(25))
             {
-                var changeCount = string.Format("{0,5}", FolderCommits[folder.Filename].CommitCount);
-                var percentage = string.Format("{0,5:#0.0}", ((double)FolderCommits[folder.Filename].CommitCount / (double)totalCommits) * 100);
-                sb.AppendLine($"<tr><td class=\"text-right\">{folder.Filename}</td><td class=\"text-right\">{changeCount} ({percentage}%)</td></tr>");
+                var changeCount = string.Format("{0,5}", FolderCommits[folder.FolderName].FileChanges);
+                var percentage = string.Format("{0,5:#0.0}", ((double)FolderCommits[folder.FolderName].FileChanges / (double)totalCommits) * 100);
+                var expand = folder.Children.Keys.Count > 0 ? $"<span onclick=\"expandFolder({folderCounter})\" id=\"folderSpanExpand{folderCounter}\" class=\"treeViewCaret\">Expand</span>" : "";
+                sb.AppendLine($"<tr><td class=\"text-right\">{folder.FolderName}</td><td class=\"text-right text-nowrap\">{changeCount} ({percentage}%)</td><td>{expand}</td></tr>");
+                if (folder.Children.Keys.Count > 0)
+                {
+                    sb.AppendLine($"<tr id=\"folderTrExpand{folderCounter}\" class=\"nested\"><td colspan=\"3\" style=\"overflow: scroll\">");
+                    sb.AppendLine($"<ul id=\"folderUlExpand{folderCounter}\" class=\"nested\">");
+                    AddSectionCommitsForEachMonthChildren(sb, folder, 0);
+                    sb.AppendLine("</ul>");
+                    sb.AppendLine("</td></tr>");
+                }
+                folderCounter++;
             }
             var total = string.Format("{0,5}", totalCommits);
-            sb.AppendLine($"<tr><td class=\"text-right\">Total number of Commits analyzed</td><td class=\"text-right\">{total} ({string.Format("{0,5:##0.0}", 100)}%)</td></tr>");
+            sb.AppendLine($"<tr><td class=\"text-right\">Total number of Commits analyzed</td><td class=\"text-right\">{total} ({string.Format("{0,5:##0.0}", 100)}%)</td></td></tr>");
             sb.AppendLine("</table>\n");
             sb.AppendLine("</div>");
             sb.AppendLine("<div class=\"col-md-6\">");
             AddPieChartJavascript(sb);
             sb.AppendLine("<div id=\"piechart\" style=\"width: 900px; height: 500px; \"></div>");
+            sb.AppendLine("<script type=\"text/javascript\">");
+            sb.AppendLine("var toggler = document.getElementsByClassName(\"treeViewCaret\");");
+            sb.AppendLine("var i;");
+            sb.AppendLine("for (i = 0; i < toggler.length; i++) {");
+            sb.AppendLine("  toggler[i].addEventListener(\"click\", function() {");
+            sb.AppendLine("    var children = this.parentElement.querySelector(\".nested\");");
+            sb.AppendLine("    if(children) {");
+            sb.AppendLine("       children.classList.toggle(\"active\");");
+            sb.AppendLine("       this.classList.toggle(\"caret-down\");");
+            sb.AppendLine("    }");
+            sb.AppendLine("  });");
+            sb.AppendLine("}");
+            sb.AppendLine("function expandFolder(folderId) {");
+            sb.AppendLine("  var folderExpander = document.getElementById('folderTrExpand' + folderId);");
+            sb.AppendLine("  folderExpander.classList.toggle('active');");
+            sb.AppendLine("  folderExpander = document.getElementById('folderUlExpand' + folderId);");
+            sb.AppendLine("  folderExpander.classList.toggle('active');");
+            sb.AppendLine("  folderExpander = document.getElementById('folderSpanExpand' + folderId)");
+            sb.AppendLine("  folderExpander.classList.toggle('caret-down');");
+            sb.AppendLine("}");
+            sb.AppendLine("</script>");
             sb.AppendLine("</div></div>");
+        }
+
+        private void AddSectionCommitsForEachMonthChildren(StringBuilder sb, FolderStat parentFolder, int indent)
+        {
+            if (parentFolder.Children.Keys.Count > 0)
+            {
+                foreach (var folder in parentFolder.Children.Values.OrderByDescending(fs => fs.FileChanges))
+                {
+                    var changeCount = string.Format("{0,5}", parentFolder.Children[folder.FolderName].FileChanges);
+                    var folderName = folder.Children.Keys.Count > 0 ? $"<span class=\"treeViewCaret\">{folder.FolderName}</span>" : folder.FolderName;
+                    var padding = folder.Children.Keys.Count <= 0 ? 40 : 20;
+                    sb.AppendLine($"<li style=\"padding-left: {padding}px\" class=\"text-nowrap\">{folderName}: {changeCount}");
+                    if (folder.Children.Keys.Count > 0)
+                    {
+                        sb.AppendLine($"<ul class=\"nested\">");
+                        AddSectionCommitsForEachMonthChildren(sb, folder, indent + 1);
+                        sb.AppendLine("</ul>");
+                    }
+                    sb.AppendLine("</li>");
+                }
+            }
         }
 
         private void AddSectionProjectStatistics(StringBuilder sb, Analysis analysis)
