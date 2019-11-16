@@ -244,6 +244,7 @@ namespace GitCommitsAnalysis.Reporting
             switch (extension)
             {
                 case "html":
+                case "cshtml":
                 case "ts":
                 case "cs":
                 case "ps1":
@@ -407,16 +408,17 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<div class=\"col\">");
             sb.AppendLine("<h2>Number of files of each type</h2>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: auto\">");
-            sb.AppendLine($"<tr><th class=\"text-right\">Filetype</th><th>Count</th></tr>");
+            sb.AppendLine("<tr><th class=\"text-right\">Filetype</th><th>Count</th></tr>");
             int rowCounter = 1;
             foreach (var kvp in fileTypesOrdered)
             {
-                sb.AppendLine($"<tr><td class=\"text-right\">{kvp.Key}</td><td class=\"text-right\">{kvp.Value}</td></tr>");
+                var icon = FileIcon("a" + kvp.Key);
+                sb.AppendLine($"<tr><td class=\"text-right\"><i class=\"{icon} iw\"></i>{kvp.Key}</td><td class=\"text-right\">{kvp.Value}</td></tr>");
                 if (rowCounter++ % 10 == 0)
                 {
                     sb.AppendLine("</table>");
                     sb.AppendLine("<table class=\"table pull-left\" style=\"width: auto\">");
-                    sb.AppendLine($"<tr><th class=\"text-right\">Filetype</th><th>Count</th></tr>");
+                    sb.AppendLine("<tr><th class=\"text-right\">Filetype</th><th>Count</th></tr>");
                 }
             }
             sb.AppendLine("</table>");
