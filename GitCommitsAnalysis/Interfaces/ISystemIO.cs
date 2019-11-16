@@ -6,5 +6,6 @@
         void WriteAllText(string filename, string contents);
         bool FileExists(string filename);
         string GetPathWitoutExtension(string filename);
+        string GetExtension(string filename);
     }
 }

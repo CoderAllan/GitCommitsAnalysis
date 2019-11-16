@@ -56,7 +56,8 @@ namespace GitCommitsAnalysis.Reporting
         {
             sb.AppendLine("<html><head>");
             sb.AppendLine($"<title>{Title}</title>");
-            sb.AppendLine("<link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\" integrity=\"sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu\" crossorigin=\"anonymous\">");
+            sb.AppendLine("<link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\" integrity=\"sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu\" crossorigin=\"anonymous\" type=\"text/css\">");
+            sb.AppendLine("<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css\" type=\"text/css\">");
             sb.AppendLine("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js\"></script>");
             sb.AppendLine("<script src=\"https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js\" integrity=\"sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd\" crossorigin=\"anonymous\"></script>");
             sb.AppendLine("<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>");
@@ -96,6 +97,15 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("");
             sb.AppendLine(".active {");
             sb.AppendLine("  display: contents;");
+            sb.AppendLine("}");
+            sb.AppendLine(".iw {");
+            sb.AppendLine("  padding-right: 5px;");
+            sb.AppendLine("}");
+            sb.AppendLine(".pl20 {");
+            sb.AppendLine("  padding-left: 20px;");
+            sb.AppendLine("}");
+            sb.AppendLine(".pl40 {");
+            sb.AppendLine("  padding-left: 40px;");
             sb.AppendLine("}");
             sb.AppendLine("</style>");
             sb.AppendLine("</head>");
@@ -208,9 +218,10 @@ namespace GitCommitsAnalysis.Reporting
                 foreach (var folder in parentFolder.Children.Values.OrderByDescending(fs => fs.FileChanges))
                 {
                     var changeCount = string.Format("{0,5}", parentFolder.Children[folder.FolderName].FileChanges);
-                    var folderName = folder.Children.Keys.Count > 0 ? $"<span class=\"treeViewCaret\">{folder.FolderName}</span>" : folder.FolderName;
-                    var padding = folder.Children.Keys.Count <= 0 ? 40 : 20;
-                    sb.AppendLine($"<li style=\"padding-left: {padding}px\" class=\"text-nowrap\">{folderName}: {changeCount}");
+                    var icon = FileIcon(folder.FolderName);
+                    var folderName = folder.Children.Keys.Count > 0 ? $"<span class=\"treeViewCaret\">{folder.FolderName}</span>" : $"<i class=\"{icon} iw\"></i>" + folder.FolderName;// filenameAndIcon;
+                    var padding = folder.Children.Keys.Count <= 0 ? "pl40" : "pl20";
+                    sb.AppendLine($"<li class=\"text-nowrap {padding}\">{folderName}: {changeCount}");
                     if (folder.Children.Keys.Count > 0)
                     {
                         sb.AppendLine($"<ul class=\"nested\">");
@@ -220,6 +231,83 @@ namespace GitCommitsAnalysis.Reporting
                     sb.AppendLine("</li>");
                 }
             }
+        }
+
+        private string FileIcon(string filename)
+        {
+            var extension = SystemIO.GetExtension(filename);
+            if (!string.IsNullOrEmpty(extension))
+            {
+                extension = extension.Substring(1);
+            }
+            var cssClass = "";
+            switch (extension)
+            {
+                case "html":
+                case "ts":
+                case "cs":
+                case "ps1":
+                case "bat":
+                case "cmd":
+                case "sh":
+                case "json":
+                case "xml":
+                case "css":
+                case "scss":
+                    cssClass += "far fa-file-code";
+                    break;
+                case "js":
+                    cssClass += "fab fa-js";
+                    break;
+                case "xls":
+                case "xlsx":
+                    cssClass += "far fa-file-excel";
+                    break;
+                case "csv":
+                    cssClass += "far fa-file-csv";
+                    break;
+                case "doc":
+                case "docx":
+                    cssClass += "far fa-file-word";
+                    break;
+                case "pdf":
+                    cssClass += "far fa-file-pdf";
+                    break;
+                case "jpg":
+                case "jpeg":
+                case "png":
+                case "gif":
+                case "svg":
+                case "tiff":
+                case "tif":
+                case "bmp":
+                case "ico":
+                    cssClass += "far fa-file-image";
+                    break;
+                case "txt":
+                    cssClass += "far fa-file-alt";
+                    break;
+                case "md":
+                    cssClass += "fab fa-markdown";
+                    break;
+                case "zip":
+                case "tgz":
+                case "tar":
+                case "rar":
+                    cssClass += "far fa-file-archive";
+                    break;
+                case "eot":
+                case "otf":
+                case "ttf":
+                case "woff":
+                case "woff2":
+                    cssClass += "fas fa-font";
+                    break;
+                default:
+                    cssClass += "far fa-file";
+                    break;
+            }
+            return cssClass;
         }
 
         private void AddSectionProjectStatistics(StringBuilder sb, Analysis analysis)
