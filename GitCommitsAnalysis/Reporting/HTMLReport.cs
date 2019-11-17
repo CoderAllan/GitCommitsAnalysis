@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
 using GitCommitsAnalysis.Interfaces;
 using GitCommitsAnalysis.Model;
 
@@ -44,6 +45,7 @@ namespace GitCommitsAnalysis.Reporting
             AddSectionProjectStatistics(sb, analysis);
             AddSectionCommitsForEachDay(sb, analysis.CommitsEachDay);
             AddSectionLinesChangedEachDay(sb, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
+            AddSectionTags(sb, analysis.Tags);
             AddSectionFileTypes(sb, analysis.FileTypes);
             sb.AppendLine("</div>");
             sb.AppendLine("</div>");
@@ -169,7 +171,7 @@ namespace GitCommitsAnalysis.Reporting
                 var changeCount = string.Format("{0,5}", FolderCommits[folder.FolderName].FileChanges);
                 var percentage = string.Format("{0,5:#0.0}", ((double)FolderCommits[folder.FolderName].FileChanges / (double)totalCommits) * 100);
                 var expand = folder.Children.Keys.Count > 0 ? $"<span onclick=\"expandFolder({folderCounter})\" id=\"folderSpanExpand{folderCounter}\" class=\"treeViewCaret\">Expand</span>" : "";
-                sb.AppendLine($"<tr><td class=\"text-right\">{folder.FolderName}</td><td class=\"text-right text-nowrap\">{changeCount} ({percentage}%)</td><td>{expand}</td></tr>");
+                sb.AppendLine($"<tr><td class=\"text-right\">{WebUtility.HtmlEncode(folder.FolderName)}</td><td class=\"text-right text-nowrap\">{changeCount} ({percentage}%)</td><td>{expand}</td></tr>");
                 if (folder.Children.Keys.Count > 0)
                 {
                     sb.AppendLine($"<tr id=\"folderTrExpand{folderCounter}\" class=\"nested\"><td colspan=\"3\" style=\"overflow: scroll\">");
@@ -219,7 +221,7 @@ namespace GitCommitsAnalysis.Reporting
                 {
                     var changeCount = string.Format("{0,5}", parentFolder.Children[folder.FolderName].FileChanges);
                     var icon = FileIcon(folder.FolderName);
-                    var folderName = folder.Children.Keys.Count > 0 ? $"<span class=\"treeViewCaret\">{folder.FolderName}</span>" : $"<i class=\"{icon} iw\"></i>" + folder.FolderName;// filenameAndIcon;
+                    var folderName = folder.Children.Keys.Count > 0 ? $"<span class=\"treeViewCaret\">{WebUtility.HtmlEncode(folder.FolderName)}</span>" : $"<i class=\"{icon} iw\"></i>{WebUtility.HtmlEncode(folder.FolderName)}";
                     var padding = folder.Children.Keys.Count <= 0 ? "pl40" : "pl20";
                     sb.AppendLine($"<li class=\"text-nowrap {padding}\">{folderName}: {changeCount}");
                     if (folder.Children.Keys.Count > 0)
@@ -413,7 +415,7 @@ namespace GitCommitsAnalysis.Reporting
             foreach (var kvp in fileTypesOrdered)
             {
                 var icon = FileIcon("a" + kvp.Key);
-                sb.AppendLine($"<tr><td class=\"text-right\"><i class=\"{icon} iw\"></i>{kvp.Key}</td><td class=\"text-right\">{kvp.Value}</td></tr>");
+                sb.AppendLine($"<tr><td class=\"text-right\"><i class=\"{icon} iw\"></i>{WebUtility.HtmlEncode(kvp.Key)}</td><td class=\"text-right\">{kvp.Value}</td></tr>");
                 if (rowCounter++ % 10 == 0)
                 {
                     sb.AppendLine("</table>");
@@ -431,7 +433,7 @@ namespace GitCommitsAnalysis.Reporting
             var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
             var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A";
             sb.AppendLine("<div class=\"row\"><div class=\"col-md-6\">");
-            sb.AppendLine($"<h3>{fileChange.Filename}</h3>");
+            sb.AppendLine($"<h3>{WebUtility.HtmlEncode(fileChange.Filename)}</h3>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
             sb.AppendLine($"<tr><td class=\"text-right\">Commits</td><td>{fileChange.CommitCount}</td></tr>");
             sb.AppendLine($"<tr><td class=\"text-right\">Lines of code</td><td>{linesOfCode}</td></tr>");
@@ -449,7 +451,7 @@ namespace GitCommitsAnalysis.Reporting
             var commitDates = new List<ScatterPoint>();
             foreach (var userfileChange in UserfileCommitsList.Where(ufc => ufc.Filename == fileChange.Filename))
             {
-                var username = string.Format("{0,20}", userfileChange.Username);
+                var username = WebUtility.HtmlEncode(userfileChange.Username);
                 var changeCount = string.Format("{0,3}", userfileChange.CommitCount);
                 var percentage = string.Format("{0,5:#0.00}", ((double)userfileChange.CommitCount / (double)fileChange.CommitCount) * 100);
                 var latestCommit = GenerateScatterPlotData(commitDates, userfileChange);
@@ -509,5 +511,56 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</script>");
         }
 
+        private void AddSectionTags(StringBuilder sb, Dictionary<DateTime, string> tags)
+        {
+            var tagsOrdered = tags.AsEnumerable().OrderByDescending(kvp => kvp.Key).ThenBy(kvp => kvp.Value);
+            sb.AppendLine("<div class=\"row\">");
+            sb.AppendLine("<div class=\"col-md-4\">");
+            sb.AppendLine("<h2>Tags</h2>");
+            sb.AppendLine("<table class=\"table pull-left\" style=\"width: auto\">");
+            sb.AppendLine("<tr><th>Tag</th><th>Commit date</th></tr>");
+            var tagDates = new List<ScatterPoint>();
+            foreach (var kvp in tagsOrdered)
+            {
+                var tag = kvp.Value;
+                var tagCommitDate = kvp.Key.ToString("yyyy-MM-dd");
+                sb.AppendLine($"<tr><td>{WebUtility.HtmlEncode(tag)}</td><td>{tagCommitDate}</td></tr>");
+                var date = $"new Date('{tagCommitDate}')";
+                tagDates.Add(new ScatterPoint
+                {
+                    Date = date,
+                    UserId = 1,
+                    ToolTip = $"'{tag}, {tagCommitDate}'"
+                });
+            }
+            sb.AppendLine("</table>");
+            sb.AppendLine("</div>");
+            sb.AppendLine("<div class=\"col-md-8\">");
+            AddTagsScatterplotJavascript(sb, tagDates);
+            sb.AppendLine("    <div id=\"scatterChartTags\" style=\"width: 900px; height: 300px; \"></div>");
+            sb.AppendLine("</div></div>");
+        }
+
+        private static void AddTagsScatterplotJavascript(StringBuilder sb, List<ScatterPoint> tagDates)
+        {
+            var tagDatesString = string.Join(",", tagDates.Select(sp => sp.ToString()).OrderBy(sp => sp));
+
+            sb.AppendLine("<script type=\"text/javascript\">");
+            sb.AppendLine("google.charts.load('current', { 'packages':['corechart'] });");
+            sb.AppendLine($"google.charts.setOnLoadCallback(drawChartTags);");
+            sb.AppendLine($"function drawChartTags() {{");
+            sb.AppendLine($"var dataTags = new google.visualization.DataTable();");
+            sb.AppendLine($"dataTags.addColumn('date', 'Date');");
+            sb.AppendLine($"dataTags.addColumn('number', 'Tag');");
+            sb.AppendLine($"dataTags.addColumn({{ type: 'string', role: 'tooltip'}});");
+            sb.AppendLine($"dataTags.addRows([");
+            sb.AppendLine(tagDatesString);
+            sb.AppendLine("]);");
+            sb.AppendLine("var options = { width: 900, height: 300, title: 'Tags', legend: 'none' };");
+            sb.AppendLine($"var chart = new google.visualization.ScatterChart(document.getElementById('scatterChartTags'));");
+            sb.AppendLine($"chart.draw(dataTags, options);");
+            sb.AppendLine("}");
+            sb.AppendLine("</script>");
+        }
     }
 }

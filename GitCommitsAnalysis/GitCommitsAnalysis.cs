@@ -33,6 +33,12 @@ namespace GitCommitsAnalysis
                 var cyclomaticComplexityCounter = new CyclomaticComplexityCounter();
                 var linesOfCodeCalculator = new LinesOfCodeCalculator();
                 var typeScriptAst = new TypeScriptAST();
+                foreach(var tag in repo.Tags)
+                {
+                    var commit = repo.Lookup<Commit>(tag.Target.Sha);
+                    var commitDate = commit.Author.When.UtcDateTime.Date;
+                    analysis.Tags.Add(commitDate, tag.FriendlyName);
+                }
                 foreach (var commit in repo.Commits)
                 {
                     var username = commit.Author.Name;
