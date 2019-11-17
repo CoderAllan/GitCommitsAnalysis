@@ -78,20 +78,23 @@ namespace GitCommitsAnalysis.Reporting
                 sb.AppendLine();
             }
 
-            var tagsOrdered = analysis.Tags.AsEnumerable().OrderByDescending(kvp => kvp.Key).ThenBy(kvp => kvp.Value);
-            sb.AppendLine("## Tags\n");
-            sb.AppendLine("| Name | Date |");
-            sb.AppendLine("|---:|----:|");
-            foreach (var kvp in tagsOrdered)
+            if (analysis.Tags.Count > 0)
             {
-                sb.AppendLine($"| {kvp.Value} | {kvp.Key.ToString("yyyy-MM-dd")} |");
+                var tagsOrdered = analysis.Tags.AsEnumerable().OrderByDescending(kvp => kvp.Key).ThenBy(kvp => kvp.Value);
+                sb.AppendLine("## Tags\n");
+                sb.AppendLine("| Name | Date |");
+                sb.AppendLine("|:---|----:|");
+                foreach (var kvp in tagsOrdered)
+                {
+                    sb.AppendLine($"| {kvp.Value} | {kvp.Key.ToString("yyyy-MM-dd")} |");
+                }
+                sb.AppendLine();
             }
-            sb.AppendLine();
 
             var fileTypesOrdered = analysis.FileTypes.AsEnumerable().OrderByDescending(kvp => kvp.Value).ThenBy(kvp => kvp.Key);
             sb.AppendLine("## Number of files of each type\n");
-            sb.AppendLine("| | |");
-            sb.AppendLine("|:---|----:|");
+            sb.AppendLine("| Filetype | Count |");
+            sb.AppendLine("|---:|----:|");
             foreach (var kvp in fileTypesOrdered)
             {
                 sb.AppendLine($"| {kvp.Key} | {kvp.Value} |");

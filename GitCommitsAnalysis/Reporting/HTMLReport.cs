@@ -45,7 +45,10 @@ namespace GitCommitsAnalysis.Reporting
             AddSectionProjectStatistics(sb, analysis);
             AddSectionCommitsForEachDay(sb, analysis.CommitsEachDay);
             AddSectionLinesChangedEachDay(sb, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
-            AddSectionTags(sb, analysis.Tags);
+            if (analysis.Tags.Count > 0)
+            {
+                AddSectionTags(sb, analysis.Tags);
+            }
             AddSectionFileTypes(sb, analysis.FileTypes);
             sb.AppendLine("</div>");
             sb.AppendLine("</div>");
