@@ -115,6 +115,13 @@ namespace GitCommitsAnalysis.Reporting
                 sheet.Cells[rowCounter, 3].Value = numberOfLinesDeleted;
                 rowCounter++;
             }
+            var chart = sheet.Drawings.AddChart("LineOfCodeChangeEachDay", OfficeOpenXml.Drawing.Chart.eChartType.Line);
+            chart.SetSize(600, 400);
+            chart.SetPosition(0, 250);
+            var series1 = chart.Series.Add($"$B$4:$B${rowCounter}", $"$A$4:$A${rowCounter}");
+            series1.Header = "Added";
+            var series2 = chart.Series.Add($"$C$4:$C${rowCounter}", $"$A$4:$A${rowCounter}");
+            series2.Header = "Deleted";
         }
 
         private void AddSectionTags(ExcelWorksheet sheet, Dictionary<DateTime, string> tags)
