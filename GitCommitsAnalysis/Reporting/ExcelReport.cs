@@ -28,11 +28,10 @@ namespace GitCommitsAnalysis.Reporting
             {
                 var sheetCommitsForEachSubfolder = excelPackage.Workbook.Worksheets.Add("Commits for each sub-folder");
                 AddSectionCommitsForEachMonth(sheetCommitsForEachSubfolder);
+
                 var sheetTopMostChangedFiles = excelPackage.Workbook.Worksheets.Add($"Top {NumberOfFilesToList} most changed files");
-                foreach (var fileChange in FileCommitsList.Take(NumberOfFilesToList))
-                {
-                    AddSectionCommitsForEachFile(sheetTopMostChangedFiles, fileChange);
-                }
+                AddSectionCommitsForEachFile(sheetTopMostChangedFiles);
+
                 var sheetStatistics = excelPackage.Workbook.Worksheets.Add("Statistics");
                 AddSectionStatistics(sheetStatistics, analysis);
 
@@ -85,12 +84,59 @@ namespace GitCommitsAnalysis.Reporting
             var series1 = chart.Series.Add($"$B$4:$B${rowCounter}", $"$A$4:$A${rowCounter}");
         }
 
-        private void AddSectionCommitsForEachFile(ExcelWorksheet sheet, FileStat fileChange)
+        private void AddSectionCommitsForEachFile(ExcelWorksheet sheet)
         {
             Header(sheet, $"Top {NumberOfFilesToList} most changed files");
 
             int rowCounter = 3;
+            foreach (var fileChange in FileCommitsList.Take(NumberOfFilesToList))
+            {
+                rowCounter = AddSectionCommitsForFile(sheet, fileChange, rowCounter);
+            }
         }
+
+        private int AddSectionCommitsForFile(ExcelWorksheet sheet, FileStat fileChange, int rowCounter)
+        {
+            sheet.Cells[rowCounter, 1].Value = fileChange.Filename;
+            sheet.Cells[rowCounter, 1].Style.Font.Size = 16;
+            rowCounter++;
+
+            sheet.Cells[rowCounter, 1].Value = "Commits";
+            sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            sheet.Cells[rowCounter, 2].Value = fileChange.CommitCount;
+            rowCounter++;
+            sheet.Cells[rowCounter, 1].Value = "Lines of code";
+            sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            sheet.Cells[rowCounter, 2].Value = fileChange.LinesOfCode;
+            rowCounter++;
+            sheet.Cells[rowCounter, 1].Value = "Cyclomatic complexity";
+            sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            sheet.Cells[rowCounter, 2].Value = fileChange.CyclomaticComplexity;
+            rowCounter++;
+            sheet.Cells[rowCounter, 1].Value = "Method count";
+            sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            sheet.Cells[rowCounter, 2].Value = fileChange.MethodCount;
+            rowCounter++;
+
+            TableHeader(sheet, rowCounter, 1, "Author", 25);
+            TableHeader(sheet, rowCounter, 2, "Commits", 9);
+            TableHeader(sheet, rowCounter, 3, "Percentage", 11);
+            TableHeader(sheet, rowCounter, 4, "Latest commit", 11);
+            rowCounter++;
+            foreach (var userfileChange in UserfileCommitsList.Where(ufc => ufc.Filename == fileChange.Filename))
+            {
+                sheet.Cells[rowCounter, 1].Value = userfileChange.Username;
+                sheet.Cells[rowCounter, 2].Value = userfileChange.CommitCount;
+                sheet.Cells[rowCounter, 3].Value = (double)userfileChange.CommitCount / (double)fileChange.CommitCount;
+                sheet.Cells[rowCounter, 3].Style.Numberformat.Format = "#,##0.00%";
+                var commitDatesOrdered = userfileChange.CommitDates.OrderBy(date => date);
+                sheet.Cells[rowCounter, 4].Value = commitDatesOrdered.Last().ToString("yyyy-MM-dd");
+                rowCounter++;
+            }
+
+            return rowCounter;
+        }
+
 
         private void AddSectionStatistics(ExcelWorksheet sheet, Analysis analysis)
         {
