@@ -84,7 +84,7 @@ namespace GitCommitsAnalysis.Reporting
             sheet.Cells[rowCounter, 2].Value = totalCommits;
             rowCounter++;
             sheet.Cells[rowCounter, 1].Value = "Lines of code analyzed";
-            sheet.Cells[rowCounter, 2].Value = analysis.LinesOfCodeAnalysed;
+            sheet.Cells[rowCounter, 2].Value = analysis.LinesOfCodeanalyzed;
             rowCounter++;
             var numberOfAuthors = UserfileCommitsList.Select(ufc => ufc.Username).Distinct().Count();
             sheet.Cells[rowCounter, 1].Value = "Number of authors";

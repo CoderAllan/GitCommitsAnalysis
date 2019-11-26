@@ -31,12 +31,12 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine($"| First commit | {analysis.FirstCommitDate.ToString("yyyy-MM-dd")} |");
             sb.AppendLine($"| Latest commit | {analysis.LatestCommitDate.ToString("yyyy-MM-dd")} |");
             sb.AppendLine($"| Number of commits | {totalCommits} |");
-            sb.AppendLine($"| Lines of code analysed | {analysis.LinesOfCodeAnalysed} |");
+            sb.AppendLine($"| Lines of code analyzed | {analysis.LinesOfCodeanalyzed} |");
             sb.AppendLine($"| Number of authors | {numberOfAuthors} |");
             sb.AppendLine($"| Analysis time(milliseconds) | {analysis.AnalysisTime} |");
             sb.AppendLine();
 
-            sb.AppendLine("## File changes for each subfolder");
+            sb.AppendLine("## File changes for each sub-folder");
             var folderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.FileChanges);
             foreach (var folder in folderCommitsList.Take(NumberOfFilesToList))
             {
@@ -93,7 +93,7 @@ namespace GitCommitsAnalysis.Reporting
 
             var fileTypesOrdered = analysis.FileTypes.AsEnumerable().OrderByDescending(kvp => kvp.Value).ThenBy(kvp => kvp.Key);
             sb.AppendLine("## Number of files of each type\n");
-            sb.AppendLine("| Filetype | Count |");
+            sb.AppendLine("| File type | Count |");
             sb.AppendLine("|---:|----:|");
             foreach (var kvp in fileTypesOrdered)
             {

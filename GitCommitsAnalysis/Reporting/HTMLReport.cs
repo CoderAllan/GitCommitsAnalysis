@@ -136,7 +136,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("$('#tabs a[href=\"#activityEachDay\"]').click(function (e) { e.preventDefault() $(this).tab('show')})");
             sb.AppendLine("</script>");
             sb.AppendLine("<ul class=\"nav nav-tabs\" role=\"tablist\" id=\"tabs\">");
-            sb.AppendLine("<li role=\"presentation\" class=\"active\"><a href=\"#commitsForEachSubfolder\" aria-controls=\"home\" role=\"tab\" data-toggle=\"tab\">Commits for each subfolder</a></li>");
+            sb.AppendLine("<li role=\"presentation\" class=\"active\"><a href=\"#commitsForEachSubfolder\" aria-controls=\"home\" role=\"tab\" data-toggle=\"tab\">Commits for each sub-folder</a></li>");
             sb.AppendLine("<li role=\"presentation\"><a href=\"#projectStatistics\" aria-controls=\"projectStatistics\" role=\"tab\" data-toggle=\"tab\">Statistics</a></li>");
             sb.AppendLine("</ul>");
         }
@@ -153,7 +153,7 @@ namespace GitCommitsAnalysis.Reporting
                 sb.AppendLine($"      ['{folder.FolderName}', {folder.FileChanges}],");
             }
             sb.AppendLine("   ]);");
-            sb.AppendLine("   var options = { title: 'Commits for each subfolder' }; ");
+            sb.AppendLine("   var options = { title: 'Commits for each sub-folder' }; ");
             sb.AppendLine("   var chart = new google.visualization.PieChart(document.getElementById('piechart'));");
             sb.AppendLine("   chart.draw(data, options);");
             sb.AppendLine("}");
@@ -165,7 +165,7 @@ namespace GitCommitsAnalysis.Reporting
             var totalCommits = FileCommitsList.Sum(fc => fc.CommitCount);
             sb.AppendLine("<div class=\"row\">");
             sb.AppendLine("<div class=\"col-md-6\">");
-            sb.AppendLine("<h2>Commits for each subfolder</h2>");
+            sb.AppendLine("<h2>Commits for each sub-folder</h2>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
             sb.AppendLine("<tr><th class=\"text-right\">Folder</th><th class=\"text-right\">File changes</th><th></th></tr>");
             int folderCounter = 1;
@@ -326,7 +326,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine($"<tr><td class=\"text-right\">First commit</td><td class=\"text-right\">{analysis.FirstCommitDate.ToString("yyyy-MM-dd")}</td></tr>");
             sb.AppendLine($"<tr><td class=\"text-right\">Latest commit</td><td class=\"text-right\">{analysis.LatestCommitDate.ToString("yyyy-MM-dd")}</td></tr>");
             sb.AppendLine($"<tr><td class=\"text-right\">Number of commits</td><td class=\"text-right\">{totalCommits}</td></tr>");
-            sb.AppendLine($"<tr><td class=\"text-right\">Lines of code analysed</td><td class=\"text-right\">{analysis.LinesOfCodeAnalysed}</td></tr>");
+            sb.AppendLine($"<tr><td class=\"text-right\">Lines of code analyzed</td><td class=\"text-right\">{analysis.LinesOfCodeanalyzed}</td></tr>");
             sb.AppendLine($"<tr><td class=\"text-right\">Number of authors</td><td class=\"text-right\">{numberOfAuthors}</td></tr>");
             sb.AppendLine($"<tr><td class=\"text-right\">Analysis time(milliseconds)</td><td class=\"text-right\">{analysis.AnalysisTime}</td></tr>");
             sb.AppendLine("</table>");
@@ -413,7 +413,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<div class=\"col\">");
             sb.AppendLine("<h2>Number of files of each type</h2>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: auto\">");
-            sb.AppendLine("<tr><th class=\"text-right\">Filetype</th><th>Count</th></tr>");
+            sb.AppendLine("<tr><th class=\"text-right\">File type</th><th>Count</th></tr>");
             int rowCounter = 1;
             foreach (var kvp in fileTypesOrdered)
             {
@@ -423,7 +423,7 @@ namespace GitCommitsAnalysis.Reporting
                 {
                     sb.AppendLine("</table>");
                     sb.AppendLine("<table class=\"table pull-left\" style=\"width: auto\">");
-                    sb.AppendLine("<tr><th class=\"text-right\">Filetype</th><th>Count</th></tr>");
+                    sb.AppendLine("<tr><th class=\"text-right\">File type</th><th>Count</th></tr>");
                 }
             }
             sb.AppendLine("</table>");

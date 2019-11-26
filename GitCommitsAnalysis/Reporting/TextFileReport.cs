@@ -14,7 +14,7 @@ namespace GitCommitsAnalysis.Reporting
 
         public void Generate(Analysis analysis)
         {
-            Console.WriteLine("Generating Textfile report...");
+            Console.WriteLine("Generating Text file report...");
             StringBuilder sb = new StringBuilder();
             FileCommitsList = analysis.FileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
             UserfileCommitsList = analysis.UserfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
@@ -26,7 +26,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine($"First commit: {analysis.FirstCommitDate.ToString("yyyy-MM-dd")}");
             sb.AppendLine($"Latest commit: {analysis.LatestCommitDate.ToString("yyyy-MM-dd")}");
             sb.AppendLine($"Number of commits: {totalCommits}");
-            sb.AppendLine($"Lines of code analysed: {analysis.LinesOfCodeAnalysed}");
+            sb.AppendLine($"Lines of code analyzed: {analysis.LinesOfCodeanalyzed}");
             sb.AppendLine($"Number of authors: {numberOfAuthors}");
             sb.AppendLine($"Analysis time(milliseconds): {analysis.AnalysisTime}");
             sb.AppendLine();

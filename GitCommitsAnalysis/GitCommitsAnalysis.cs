@@ -25,7 +25,7 @@ namespace GitCommitsAnalysis
 
         public void PerformAnalysis(string rootFolder)
         {
-            Console.WriteLine("Analysing commits...");
+            Console.WriteLine("Analyzing commits...");
             using (var repo = new Repository(rootFolder))
             {
                 var analysis = new Analysis();
@@ -96,7 +96,7 @@ namespace GitCommitsAnalysis
                                         methodCount = MethodCounter.Calculate(typeScriptAst, fileContents);
                                     }
                                     linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
-                                    analysis.LinesOfCodeAnalysed += linesOfCode;
+                                    analysis.LinesOfCodeanalyzed += linesOfCode;
                                 }
                                 analysis.FileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode, MethodCount = methodCount };
                                 IncDictionaryValue(analysis.FileTypes, fileType);
@@ -130,7 +130,7 @@ namespace GitCommitsAnalysis
                     }
                 }
                 var o = analysis.FolderCommits.OrderBy(p => p.Key);
-                analysis.AnalysisTime = (DateTime.UtcNow.Ticks - analysis.CreatedDate.Ticks) / 10000; // Analysis time in miliseconds
+                analysis.AnalysisTime = (DateTime.UtcNow.Ticks - analysis.CreatedDate.Ticks) / 10000; // Analysis time in milliseconds
                 foreach (var report in reports)
                 {
                     report.Generate(analysis);
