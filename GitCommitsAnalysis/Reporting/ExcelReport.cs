@@ -21,35 +21,38 @@ namespace GitCommitsAnalysis.Reporting
             if (analysis == null) throw new ArgumentException("Parameter analysis is null.", nameof(analysis));
             this.FileCommitsList = analysis.FileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename);
             this.UserfileCommitsList = analysis.UserfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
+            this.FolderCommits = analysis.FolderCommits;
+            this.FolderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.FileChanges);
 
-            var excelPackage = new ExcelPackage();
-            var sheetCommitsForEachSubfolder = excelPackage.Workbook.Worksheets.Add("Commits for each sub-folder");
-            AddSectionCommitsForEachMonth(sheetCommitsForEachSubfolder);
-            var sheetTopMostChangedFiles = excelPackage.Workbook.Worksheets.Add($"Top {NumberOfFilesToList} most changed files");
-            foreach (var fileChange in FileCommitsList.Take(NumberOfFilesToList))
+            using (var excelPackage = new ExcelPackage())
             {
-                AddSectionCommitsForEachFile(sheetTopMostChangedFiles, fileChange);
+                var sheetCommitsForEachSubfolder = excelPackage.Workbook.Worksheets.Add("Commits for each sub-folder");
+                AddSectionCommitsForEachMonth(sheetCommitsForEachSubfolder);
+                var sheetTopMostChangedFiles = excelPackage.Workbook.Worksheets.Add($"Top {NumberOfFilesToList} most changed files");
+                foreach (var fileChange in FileCommitsList.Take(NumberOfFilesToList))
+                {
+                    AddSectionCommitsForEachFile(sheetTopMostChangedFiles, fileChange);
+                }
+                var sheetStatistics = excelPackage.Workbook.Worksheets.Add("Statistics");
+                AddSectionStatistics(sheetStatistics, analysis);
+
+                var sheetCommitsEachDay = excelPackage.Workbook.Worksheets.Add("Commits each day");
+                AddSectionCommitsEachDay(sheetCommitsEachDay, analysis.CommitsEachDay);
+
+                var sheetLinesChangedEachDay = excelPackage.Workbook.Worksheets.Add("Lines changed each day");
+                AddSectionLinesChangedEachDay(sheetLinesChangedEachDay, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
+
+                if (analysis.Tags.Count > 0)
+                {
+                    var sheetTags = excelPackage.Workbook.Worksheets.Add("Tags");
+                    AddSectionTags(sheetTags, analysis.Tags);
+                }
+
+                var sheetNumberOfFilesOfEachType = excelPackage.Workbook.Worksheets.Add("Number of files of each type");
+                AddSectionNumberOfFilesOfEachType(sheetNumberOfFilesOfEachType, analysis.FileTypes);
+
+                excelPackage.SaveAs(systemIO.FileInfo($"{ReportFilename}.xlsx"));
             }
-            var sheetStatistics = excelPackage.Workbook.Worksheets.Add("Statistics");
-            AddSectionStatistics(sheetStatistics, analysis);
-
-            var sheetCommitsEachDay = excelPackage.Workbook.Worksheets.Add("Commits each day");
-            AddSectionCommitsEachDay(sheetCommitsEachDay, analysis.CommitsEachDay);
-
-            var sheetLinesChangedEachDay = excelPackage.Workbook.Worksheets.Add("Lines changed each day");
-            AddSectionLinesChangedEachDay(sheetLinesChangedEachDay, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
-
-            if (analysis.Tags.Count > 0)
-            {
-                var sheetTags = excelPackage.Workbook.Worksheets.Add("Tags");
-                AddSectionTags(sheetTags, analysis.Tags);
-            }
-
-            var sheetNumberOfFilesOfEachType = excelPackage.Workbook.Worksheets.Add("Number of files of each type");
-            AddSectionNumberOfFilesOfEachType(sheetNumberOfFilesOfEachType, analysis.FileTypes);
-
-            //excelPackage.File =
-            excelPackage.SaveAs(systemIO.FileInfo($"{ReportFilename}.xlsx"));
         }
 
 
@@ -58,9 +61,28 @@ namespace GitCommitsAnalysis.Reporting
             Header(sheet, "Commits for each sub-folder");
 
             int rowCounter = 3;
-            sheet.Cells[rowCounter, 1].Value = "";
-            rowCounter++;
+            TableHeader(sheet, rowCounter, 1, "Folder", 40);
+            sheet.Column(1).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            TableHeader(sheet, rowCounter, 2, "File changes", 13);
+            sheet.Column(2).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            TableHeader(sheet, rowCounter, 3, "Percentage", 10);
+            sheet.Column(3).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            sheet.Column(3).Style.Numberformat.Format = "#,##0.00%";
 
+            rowCounter++;
+            var totalCommits = FileCommitsList.Sum(fc => fc.CommitCount);
+            foreach (var folder in FolderCommitsList.Take(25))
+            {
+                sheet.Cells[rowCounter, 1].Value = folder.FolderName;
+                sheet.Cells[rowCounter, 2].Value = FolderCommits[folder.FolderName].FileChanges;
+                var percentage = (double)FolderCommits[folder.FolderName].FileChanges / (double)totalCommits;
+                sheet.Cells[rowCounter, 3].Value = percentage;
+                rowCounter++;
+            }
+            var chart = sheet.Drawings.AddChart("Commits each day", OfficeOpenXml.Drawing.Chart.eChartType.Pie);
+            chart.SetSize(500, 500);
+            chart.SetPosition(0, 450);
+            var series1 = chart.Series.Add($"$B$4:$B${rowCounter}", $"$A$4:$A${rowCounter}");
         }
 
         private void AddSectionCommitsForEachFile(ExcelWorksheet sheet, FileStat fileChange)
