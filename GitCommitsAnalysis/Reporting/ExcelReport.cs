@@ -23,7 +23,7 @@ namespace GitCommitsAnalysis.Reporting
             this.UserfileCommitsList = analysis.UserfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
 
             var excelPackage = new ExcelPackage();
-            var sheetCommitsForEachSubfolder = excelPackage.Workbook.Worksheets.Add("Commits for each subfolder");
+            var sheetCommitsForEachSubfolder = excelPackage.Workbook.Worksheets.Add("Commits for each sub-folder");
             AddSectionCommitsForEachMonth(sheetCommitsForEachSubfolder);
             var sheetTopMostChangedFiles = excelPackage.Workbook.Worksheets.Add($"Top {NumberOfFilesToList} most changed files");
             foreach (var fileChange in FileCommitsList.Take(NumberOfFilesToList))
@@ -49,7 +49,7 @@ namespace GitCommitsAnalysis.Reporting
 
         private void AddSectionCommitsForEachMonth(ExcelWorksheet sheet)
         {
-            Header(sheet, "Commits for each subfolder");
+            Header(sheet, "Commits for each sub-folder");
 
             int rowCounter = 3;
             sheet.Cells[rowCounter, 1].Value = "";
@@ -68,6 +68,10 @@ namespace GitCommitsAnalysis.Reporting
         {
             Header(sheet, "Statistics");
 
+            sheet.Column(1).Width = 24;
+            sheet.Column(1).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            sheet.Column(2).Width = 11;
+            sheet.Column(2).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
             int rowCounter = 3;
             sheet.Cells[rowCounter, 1].Value = "First commit";
             sheet.Cells[rowCounter, 2].Value = analysis.FirstCommitDate.ToString("yyyy-MM-dd");
@@ -79,7 +83,7 @@ namespace GitCommitsAnalysis.Reporting
             sheet.Cells[rowCounter, 1].Value = "Number of commits";
             sheet.Cells[rowCounter, 2].Value = totalCommits;
             rowCounter++;
-            sheet.Cells[rowCounter, 1].Value = "Lines of code analysed";
+            sheet.Cells[rowCounter, 1].Value = "Lines of code analyzed";
             sheet.Cells[rowCounter, 2].Value = analysis.LinesOfCodeAnalysed;
             rowCounter++;
             var numberOfAuthors = UserfileCommitsList.Select(ufc => ufc.Username).Distinct().Count();
@@ -96,9 +100,9 @@ namespace GitCommitsAnalysis.Reporting
             Header(sheet, "Lines changed each day");
 
             int rowCounter = 3;
-            TableHeader(sheet, rowCounter, 1, "Date");
-            TableHeader(sheet, rowCounter, 2, "Lines Added");
-            TableHeader(sheet, rowCounter, 3, "Lines deleted");
+            TableHeader(sheet, rowCounter, 1, "Date", 11);
+            TableHeader(sheet, rowCounter, 2, "Lines Added", 12);
+            TableHeader(sheet, rowCounter, 3, "Lines deleted", 12);
 
             rowCounter++;
             var dateOfFirstChange = linesOfCodeAddedEachDay.Keys.OrderBy(date => date).First();
@@ -138,7 +142,7 @@ namespace GitCommitsAnalysis.Reporting
             Header(sheet, "Number of files of each type");
 
             int rowCounter = 3;
-            TableHeader(sheet, rowCounter, 1, "Filetype");
+            TableHeader(sheet, rowCounter, 1, "File type");
             TableHeader(sheet, rowCounter, 2, "Count");
 
             rowCounter++;
@@ -157,10 +161,14 @@ namespace GitCommitsAnalysis.Reporting
             sheet.Cells[1, 1].Style.Font.Size = 18;
         }
 
-        private void TableHeader(ExcelWorksheet sheet, int row, int col, string text)
+        private void TableHeader(ExcelWorksheet sheet, int row, int col, string text, int width = -1)
         {
             sheet.Cells[row, col].Value = text;
             sheet.Cells[row, col].Style.Font.Bold = true;
+            if (width > 0)
+            {
+                sheet.Column(col).Width = width;
+            }
         }
     }
 }
