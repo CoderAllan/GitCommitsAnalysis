@@ -29,5 +29,10 @@ namespace GitCommitsAnalysis
         {
             return Path.GetExtension(filename);
         }
+
+        public FileInfo FileInfo(string filename)
+        {
+            return new FileInfo(filename);
+        }
     }
 }

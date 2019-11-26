@@ -26,8 +26,8 @@ namespace GitCommitsAnalysis
                     var helpText = HelpText.AutoBuild(parserResult, h =>
                     {
                         h.AutoHelp = false; //hide --help
-                    h.AutoVersion = false;   //hide --version	
-                    return HelpText.DefaultParsingErrorsHandler(parserResult, h);
+                        h.AutoVersion = false;   //hide --version	
+                        return HelpText.DefaultParsingErrorsHandler(parserResult, h);
                     }, e => e);
                     Console.WriteLine(helpText);
                 });
@@ -60,6 +60,10 @@ namespace GitCommitsAnalysis
                 if (format == OutputFormat.HTML)
                 {
                     reportGenerators.Add(new HTMLReport(systemIO, filename, options));
+                }
+                if (format == OutputFormat.Excel)
+                {
+                    reportGenerators.Add(new ExcelReport(systemIO, filename, options));
                 }
             }
             return reportGenerators;

@@ -1,4 +1,6 @@
-﻿namespace GitCommitsAnalysis.Interfaces
+﻿using System.IO;
+
+namespace GitCommitsAnalysis.Interfaces
 {
     public interface ISystemIO
     {
@@ -7,5 +9,6 @@
         bool FileExists(string filename);
         string GetPathWitoutExtension(string filename);
         string GetExtension(string filename);
+        FileInfo FileInfo(string filename);
     }
 }
