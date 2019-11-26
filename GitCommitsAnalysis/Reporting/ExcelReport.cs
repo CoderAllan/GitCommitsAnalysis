@@ -33,6 +33,9 @@ namespace GitCommitsAnalysis.Reporting
             var sheetStatistics = excelPackage.Workbook.Worksheets.Add("Statistics");
             AddSectionStatistics(sheetStatistics, analysis);
 
+            var sheetCommitsEachDay = excelPackage.Workbook.Worksheets.Add("Commits each day");
+            AddSectionCommitsEachDay(sheetCommitsEachDay, analysis.CommitsEachDay);
+
             var sheetLinesChangedEachDay = excelPackage.Workbook.Worksheets.Add("Lines changed each day");
             AddSectionLinesChangedEachDay(sheetLinesChangedEachDay, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
 
@@ -95,6 +98,31 @@ namespace GitCommitsAnalysis.Reporting
             rowCounter++;
         }
 
+        private void AddSectionCommitsEachDay(ExcelWorksheet sheet, Dictionary<DateTime, int> commitsEachDay)
+        {
+            Header(sheet, "Commits each day");
+
+            int rowCounter = 3;
+            TableHeader(sheet, rowCounter, 1, "Date", 11);
+            TableHeader(sheet, rowCounter, 2, "Commits", 10);
+
+            rowCounter++;
+            var dateOfFirstChange = commitsEachDay.Keys.OrderBy(date => date).First();
+            for (var date = dateOfFirstChange; date <= DateTime.Now; date = date.AddDays(1))
+            {
+                var commits = commitsEachDay.ContainsKey(date) ? commitsEachDay[date] : 0;
+                sheet.Cells[rowCounter, 1].Value = date.ToString("yyyy-MM-dd");
+                sheet.Cells[rowCounter, 2].Value = commits;
+                rowCounter++;
+            }
+            var chart = sheet.Drawings.AddChart("Commits each day", OfficeOpenXml.Drawing.Chart.eChartType.Line);
+            chart.SetSize(600, 400);
+            chart.SetPosition(0, 200);
+            var series1 = chart.Series.Add($"$B$4:$B${rowCounter}", $"$A$4:$A${rowCounter}");
+            series1.Header = "Commits";
+            chart.Legend.Remove();
+        }
+
         private void AddSectionLinesChangedEachDay(ExcelWorksheet sheet, Dictionary<DateTime, int> linesOfCodeAddedEachDay, Dictionary<DateTime, int> linesOfCodeDeletedEachDay)
         {
             Header(sheet, "Lines changed each day");
@@ -122,6 +150,7 @@ namespace GitCommitsAnalysis.Reporting
             series1.Header = "Added";
             var series2 = chart.Series.Add($"$C$4:$C${rowCounter}", $"$A$4:$A${rowCounter}");
             series2.Header = "Deleted";
+            chart.Legend.Position = OfficeOpenXml.Drawing.Chart.eLegendPosition.Top;
         }
 
         private void AddSectionTags(ExcelWorksheet sheet, Dictionary<DateTime, string> tags)
