@@ -39,8 +39,11 @@ namespace GitCommitsAnalysis.Reporting
             var sheetLinesChangedEachDay = excelPackage.Workbook.Worksheets.Add("Lines changed each day");
             AddSectionLinesChangedEachDay(sheetLinesChangedEachDay, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
 
-            var sheetTags = excelPackage.Workbook.Worksheets.Add("Tags");
-            AddSectionTags(sheetTags, analysis.Tags);
+            if (analysis.Tags.Count > 0)
+            {
+                var sheetTags = excelPackage.Workbook.Worksheets.Add("Tags");
+                AddSectionTags(sheetTags, analysis.Tags);
+            }
 
             var sheetNumberOfFilesOfEachType = excelPackage.Workbook.Worksheets.Add("Number of files of each type");
             AddSectionNumberOfFilesOfEachType(sheetNumberOfFilesOfEachType, analysis.FileTypes);
