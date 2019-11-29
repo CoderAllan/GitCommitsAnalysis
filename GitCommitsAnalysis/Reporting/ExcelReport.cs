@@ -230,8 +230,8 @@ namespace GitCommitsAnalysis.Reporting
             Header(sheet, "Tags");
 
             int rowCounter = 3;
-            TableHeader(sheet, rowCounter, 1, "Tag");
-            TableHeader(sheet, rowCounter, 2, "Commit date");
+            TableHeader(sheet, rowCounter, 1, "Tag", 24);
+            TableHeader(sheet, rowCounter, 2, "Commit date", 11);
 
             rowCounter++;
             foreach (var kvp in tagsOrdered)
