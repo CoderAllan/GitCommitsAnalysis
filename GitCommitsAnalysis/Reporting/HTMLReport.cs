@@ -45,9 +45,13 @@ namespace GitCommitsAnalysis.Reporting
             AddSectionProjectStatistics(sb, analysis);
             AddSectionCommitsForEachDay(sb, analysis.CommitsEachDay);
             AddSectionLinesChangedEachDay(sb, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
-            if (analysis.Tags.Count > 0)
+            if (analysis.Tags.Any())
             {
                 AddSectionTags(sb, analysis.Tags);
+            }
+            if (analysis.Branches.Any())
+            {
+                AddSectionBranches(sb, analysis.Branches);
             }
             AddSectionFileTypes(sb, analysis.FileTypes);
             sb.AppendLine("</div>");
@@ -566,6 +570,21 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine($"chart.draw(dataTags, options);");
             sb.AppendLine("}");
             sb.AppendLine("</script>");
+        }
+
+        private void AddSectionBranches(StringBuilder sb, List<string> branches)
+        {
+            sb.AppendLine("<div class=\"row\">");
+            sb.AppendLine("<div class=\"col-md-4\">");
+            sb.AppendLine("<h2>Branches</h2>");
+            sb.AppendLine("<table class=\"table pull-left\" style=\"width: auto\">");
+            sb.AppendLine("<tr><th>Name</th></tr>");
+            foreach (var branch in branches)
+            {
+                sb.Append($"<tr><td>{branch}</td></tr>");
+            }
+            sb.AppendLine("</table>");
+            sb.AppendLine("</div></div>");
         }
     }
 }

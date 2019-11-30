@@ -80,7 +80,7 @@ namespace GitCommitsAnalysis.Reporting
                 sb.AppendLine();
             }
 
-            if (analysis.Tags.Count > 0)
+            if (analysis.Tags.Any())
             {
                 var tagsOrdered = analysis.Tags.AsEnumerable().OrderByDescending(kvp => kvp.Key).ThenBy(kvp => kvp.Value);
                 sb.AppendLine("## Tags\n");
@@ -89,6 +89,18 @@ namespace GitCommitsAnalysis.Reporting
                 foreach (var kvp in tagsOrdered)
                 {
                     sb.AppendLine($"| {kvp.Value} | {kvp.Key.ToString("yyyy-MM-dd")} |");
+                }
+                sb.AppendLine();
+            }
+            
+            if (analysis.Branches.Any())
+            {
+                sb.AppendLine("## Branches\n");
+                sb.AppendLine("| Name |");
+                sb.AppendLine("|:---|");
+                foreach (var branch in analysis.Branches)
+                {
+                    sb.AppendLine($"| {branch} |");
                 }
                 sb.AppendLine();
             }

@@ -39,6 +39,10 @@ namespace GitCommitsAnalysis
                     var commitDate = commit.Author.When.UtcDateTime.Date;
                     analysis.Tags.Add(commitDate, tag.FriendlyName);
                 }
+                foreach(var branch in repo.Branches.Where(br => br.IsRemote))
+                {
+                    analysis.Branches.Add(branch.FriendlyName);
+                }
                 foreach (var commit in repo.Commits)
                 {
                     var username = commit.Author.Name;

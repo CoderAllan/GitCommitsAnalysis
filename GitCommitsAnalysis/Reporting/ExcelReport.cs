@@ -41,10 +41,10 @@ namespace GitCommitsAnalysis.Reporting
                 var sheetLinesChangedEachDay = excelPackage.Workbook.Worksheets.Add("Lines changed each day");
                 AddSectionLinesChangedEachDay(sheetLinesChangedEachDay, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
 
-                if (analysis.Tags.Count > 0)
+                if (analysis.Tags.Any() || analysis.Branches.Any())
                 {
-                    var sheetTags = excelPackage.Workbook.Worksheets.Add("Tags");
-                    AddSectionTags(sheetTags, analysis.Tags);
+                    var sheetTags = excelPackage.Workbook.Worksheets.Add("Tags and Branches");
+                    AddSectionTagsAndBranches(sheetTags, analysis.Tags, analysis.Branches);
                 }
 
                 var sheetNumberOfFilesOfEachType = excelPackage.Workbook.Worksheets.Add("Number of files of each type");
@@ -230,7 +230,7 @@ namespace GitCommitsAnalysis.Reporting
             chart.Legend.Position = OfficeOpenXml.Drawing.Chart.eLegendPosition.Top;
         }
 
-        private void AddSectionTags(ExcelWorksheet sheet, Dictionary<DateTime, string> tags)
+        private void AddSectionTagsAndBranches(ExcelWorksheet sheet, Dictionary<DateTime, string> tags, List<string> branches)
         {
             var tagsOrdered = tags.AsEnumerable().OrderByDescending(kvp => kvp.Key).ThenBy(kvp => kvp.Value);
             Header(sheet, "Tags");
@@ -246,6 +246,18 @@ namespace GitCommitsAnalysis.Reporting
                 var tagCommitDate = kvp.Key.ToString("yyyy-MM-dd");
                 sheet.Cells[rowCounter, 1].Value = tag;
                 sheet.Cells[rowCounter, 2].Value = tagCommitDate;
+                rowCounter++;
+            }
+
+            Header(sheet, "Branches", 1, 4);
+
+            rowCounter = 3;
+            TableHeader(sheet, rowCounter, 4, "Branch", 24);
+
+            rowCounter++;
+            foreach (var branch in branches)
+            {
+                sheet.Cells[rowCounter, 4].Value = branch;
                 rowCounter++;
             }
         }
@@ -268,10 +280,10 @@ namespace GitCommitsAnalysis.Reporting
             }
         }
 
-        private void Header(ExcelWorksheet sheet, string header)
+        private void Header(ExcelWorksheet sheet, string header, int row = 1, int column = 1)
         {
-            sheet.Cells[1, 1].Value = header;
-            sheet.Cells[1, 1].Style.Font.Size = 18;
+            sheet.Cells[row, column].Value = header;
+            sheet.Cells[row, column].Style.Font.Size = 18;
         }
 
         private void TableHeader(ExcelWorksheet sheet, int row, int col, string text, int width = -1)
