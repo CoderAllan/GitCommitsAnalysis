@@ -22,6 +22,7 @@ By combining the factors you can identify the candidates where refactoring would
 The tool is a command line tool that generates a report in one of the formats:
 
 * HTML
+* Excel
 * Markdown
 * Text
 * Json (A dump of the collected data. Could be used as input for other tools)
@@ -43,9 +44,9 @@ Copyright (C) 2019 GitCommitsAnalysis
   -a, --reportfilename         The filename the report(s) will be given
 
   -f, --outputformat           Required. The output format(s) to generate.
-                               Multiple formats should be space-seperated. Eg.
+                               Multiple formats should be space-separated. Eg.
                                '-f Text Json'. Valid formats: HTML, Markdown,
-                               Json, Text
+                               Json, Text, Excel
 
   -n, --numberoffilestolist    (Default: 50) Specifies the number of flies to
                                include in the list of most changes files.
@@ -54,7 +55,7 @@ Copyright (C) 2019 GitCommitsAnalysis
   -t, --title                  (Default: GitCommitsAnalysis) The title to appear
                                in the top of the reports
 
-  -i, --ignoredfiletypes       The filetypes to ignore when analysing the Git
+  -i, --ignoredfiletypes       The file types to ignore when analyzing the Git
                                repository.. Eg. '-i csproj npmrc gitignore'
 ```
 
@@ -82,7 +83,9 @@ Any ideas, bug reports or help building this tool, is greatly appreciated. Have 
 
 [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/) for generating the Json dump of the analysis data.
 
-[TypeScriptAST](https://github.com/ToCSharp/TypeScriptAST) for counting methods and functions in Typescript files.
+[EPPlus](https://www.nuget.org/packages/EPPlus/) for generating the Excel report.
+
+[TypeScriptAST](https://www.nuget.org/packages/TypeScriptAST/) for counting methods and functions in Typescript files.
 
 [Google charts](https://developers.google.com/chart) for displaying the pie chart and the scatter charts in the HTML report.
 
