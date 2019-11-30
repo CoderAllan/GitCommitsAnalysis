@@ -101,21 +101,27 @@ namespace GitCommitsAnalysis.Reporting
             sheet.Cells[rowCounter, 1].Style.Font.Size = 16;
             rowCounter++;
 
-            sheet.Cells[rowCounter, 1].Value = "Commits";
+            var latestFileCommit = fileChange.CommitDates.OrderByDescending(cd => cd).First();
+            sheet.Cells[rowCounter, 1].Value = "Latest commit";
+            sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            sheet.Cells[rowCounter, 2].Value = latestFileCommit;
+            rowCounter++; sheet.Cells[rowCounter, 1].Value = "Commits";
             sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
             sheet.Cells[rowCounter, 2].Value = fileChange.CommitCount;
             rowCounter++;
-            sheet.Cells[rowCounter, 1].Value = "Lines of code";
+            var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
             sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-            sheet.Cells[rowCounter, 2].Value = fileChange.LinesOfCode;
+            sheet.Cells[rowCounter, 2].Value = linesOfCode;
             rowCounter++;
+            var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
             sheet.Cells[rowCounter, 1].Value = "Cyclomatic complexity";
             sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-            sheet.Cells[rowCounter, 2].Value = fileChange.CyclomaticComplexity;
+            sheet.Cells[rowCounter, 2].Value = cyclomaticComplexity;
             rowCounter++;
+            var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A"; sheet.Cells[rowCounter, 1].Value = "Lines of code";
             sheet.Cells[rowCounter, 1].Value = "Method count";
             sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-            sheet.Cells[rowCounter, 2].Value = fileChange.MethodCount;
+            sheet.Cells[rowCounter, 2].Value = methodCount;
             rowCounter++;
 
             TableHeader(sheet, rowCounter, 1, "Author", 25);
