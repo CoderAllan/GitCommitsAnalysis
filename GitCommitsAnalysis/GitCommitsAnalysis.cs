@@ -110,6 +110,7 @@ namespace GitCommitsAnalysis
                             {
                                 analysis.FileCommits[filename].LatestCommit = commitDate;
                             }
+                            IncDictionaryValue(analysis.CodeAge, analysis.FileCommits[filename].CodeAge);
 
                             var usernameFilename = UsernameFilename.GetDictKey(filename, username);
                             if (analysis.UserfileCommits.ContainsKey(usernameFilename)) { analysis.UserfileCommits[usernameFilename].CommitCount++; } else { analysis.UserfileCommits[usernameFilename] = new FileStat { Filename = filename, Username = username }; }

@@ -19,5 +19,6 @@ namespace GitCommitsAnalysis.Model
         public Dictionary<string, FolderStat> FolderCommits { get; } = new Dictionary<string, FolderStat>();
         public Dictionary<string, FileStat> UserfileCommits { get; } = new Dictionary<string, FileStat>();
         public Dictionary<string, int> FileTypes { get; } = new Dictionary<string, int>();
+        public Dictionary<int, int> CodeAge { get; } = new Dictionary<int, int>();
     }
 }

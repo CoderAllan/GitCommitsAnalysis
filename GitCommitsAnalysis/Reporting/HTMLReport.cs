@@ -45,6 +45,7 @@ namespace GitCommitsAnalysis.Reporting
             AddSectionProjectStatistics(sb, analysis);
             AddSectionCommitsForEachDay(sb, analysis.CommitsEachDay);
             AddSectionLinesChangedEachDay(sb, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
+            AddSectionCodeAge(sb, analysis.CodeAge);
             if (analysis.Tags.Any())
             {
                 AddSectionTags(sb, analysis.Tags);
@@ -404,9 +405,46 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<div class=\"row\">");
             sb.AppendLine("<div class=\"col\">");
             sb.AppendLine("<h2>Lines changed each day</h2>");
-            sb.AppendLine("");
+            sb.AppendLine();
             AddLinesChangedEachDayChartJavascript(sb, linesOfCodeAddedEachDay, linesOfCodeDeletedEachDay);
             sb.AppendLine("<div id=\"linesChangedEachDayChart\"></div>");
+            sb.AppendLine("</div></div>");
+        }
+
+        private void AddCodeAgeChartJavascript(StringBuilder sb, Dictionary<int, int> codeAge)
+        {
+            sb.AppendLine("<script type=\"text/javascript\">");
+            sb.AppendLine("google.charts.load('current', { 'packages':['corechart']});");
+            sb.AppendLine("google.charts.setOnLoadCallback(drawChart);");
+            sb.AppendLine("function drawChart() {");
+            sb.AppendLine($"var data = new google.visualization.DataTable();");
+            sb.AppendLine($"data.addColumn('number', 'Code age');");
+            sb.AppendLine($"data.addColumn('number', 'Filechanges');");
+            sb.AppendLine($"data.addColumn({{ type: 'string', role: 'tooltip'}});");
+            sb.AppendLine($"data.addColumn({{ type: 'string', role: 'annotation'}});");
+            sb.AppendLine($"data.addRows([");
+            var maxAge = codeAge.AsEnumerable().OrderByDescending(kvp => kvp.Key).First().Key;
+            for (var month = 0; month <= maxAge; month++)
+            {
+                var fileChanges = codeAge.ContainsKey(month) ? codeAge[month] : 0;
+                sb.AppendLine($"      [{month}, {fileChanges}, 'Age: {month} months, Changes: {fileChanges}', '{fileChanges}'],");
+            }
+            sb.AppendLine("   ]);");
+            sb.AppendLine("   var options = { width: 1200, height: 500, legend: 'none', hAxis: { title: 'Codeage'}, vAxis: { title: 'Filechanges' } }; ");
+            sb.AppendLine("   var chart = new google.visualization.ColumnChart(document.getElementById('codeAgeChart'));");
+            sb.AppendLine("   chart.draw(data, options);");
+            sb.AppendLine("}");
+            sb.AppendLine("</script>");
+        }
+
+        private void AddSectionCodeAge(StringBuilder sb, Dictionary<int, int> codeAge)
+        {
+            sb.AppendLine("<div class=\"row\">");
+            sb.AppendLine("<div class=\"col\">");
+            sb.AppendLine("<h2>Code age</h2>");
+            sb.AppendLine();
+            AddCodeAgeChartJavascript(sb, codeAge);
+            sb.AppendLine("<div id=\"codeAgeChart\"></div>");
             sb.AppendLine("</div></div>");
         }
 

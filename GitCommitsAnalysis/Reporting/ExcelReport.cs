@@ -41,6 +41,9 @@ namespace GitCommitsAnalysis.Reporting
                 var sheetLinesChangedEachDay = excelPackage.Workbook.Worksheets.Add("Lines changed each day");
                 AddSectionLinesChangedEachDay(sheetLinesChangedEachDay, analysis.LinesOfCodeAddedEachDay, analysis.LinesOfCodeDeletedEachDay);
 
+                var sheetCodeAge = excelPackage.Workbook.Worksheets.Add("Code age");
+                AddSectionCodeAge(sheetCodeAge, analysis.CodeAge);
+
                 if (analysis.Tags.Any() || analysis.Branches.Any())
                 {
                     var sheetTags = excelPackage.Workbook.Worksheets.Add("Tags and Branches");
@@ -228,6 +231,31 @@ namespace GitCommitsAnalysis.Reporting
             var series2 = chart.Series.Add($"$C$4:$C${rowCounter}", $"$A$4:$A${rowCounter}");
             series2.Header = "Deleted";
             chart.Legend.Position = OfficeOpenXml.Drawing.Chart.eLegendPosition.Top;
+        }
+
+        private void AddSectionCodeAge(ExcelWorksheet sheet, Dictionary<int, int> codeAge)
+        {
+            Header(sheet, "Code age");
+
+            int rowCounter = 3;
+            TableHeader(sheet, rowCounter, 1, "Code age (months)", 14);
+            TableHeader(sheet, rowCounter, 2, "Filechanges", 12);
+
+            rowCounter++;
+            var maxAge = codeAge.AsEnumerable().OrderByDescending(kvp => kvp.Key).First().Key;
+            for(var month = 0; month <= maxAge; month++){
+                var fileChanges = codeAge.ContainsKey(month) ? codeAge[month] : 0;
+                sheet.Cells[rowCounter, 1].Value = month;
+                sheet.Cells[rowCounter, 2].Value = fileChanges;
+                rowCounter++;
+            }
+            var chart = sheet.Drawings.AddChart("CodeAge", OfficeOpenXml.Drawing.Chart.eChartType.ColumnClustered);
+            chart.SetSize(600, 400);
+            chart.SetPosition(0, 250);
+            var series1 = chart.Series.Add($"$B$4:$B${rowCounter}", $"$A$4:$A${rowCounter}");
+            chart.Legend.Remove();
+            chart.XAxis.Title.Text = "Code age (months)";
+            chart.XAxis.Title.Font.Size = 12;
         }
 
         private void AddSectionTagsAndBranches(ExcelWorksheet sheet, Dictionary<DateTime, string> tags, List<string> branches)

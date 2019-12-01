@@ -79,6 +79,17 @@ namespace GitCommitsAnalysis.Reporting
                 sb.AppendLine();
             }
 
+            sb.AppendLine("## Code age\n");
+            sb.AppendLine("| Code age(months) | Filechanges |");
+            sb.AppendLine("|---:|---:|");
+            var maxAge = analysis.CodeAge.AsEnumerable().OrderByDescending(kvp => kvp.Key).First().Key;
+            for (var month = 0; month <= maxAge; month++)
+            {
+                var fileChanges = analysis.CodeAge.ContainsKey(month) ? analysis.CodeAge[month] : 0;
+                sb.AppendLine($"|{month}|{fileChanges}|");
+            }
+            sb.AppendLine();
+
             if (analysis.Tags.Any())
             {
                 var tagsOrdered = analysis.Tags.AsEnumerable().OrderByDescending(kvp => kvp.Key).ThenBy(kvp => kvp.Value);
