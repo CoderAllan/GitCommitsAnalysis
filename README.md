@@ -75,6 +75,8 @@ Any ideas, bug reports or help building this tool, is greatly appreciated. Have 
 
 ![Html report](screenshots/HtmlReport3.png)
 
+![Html report](screenshots/HtmlReport4.png)
+
 ## Packages used
 
 [CommandLineParser NuGet package](https://www.nuget.org/packages/CommandLineParser/) for parsing the commandline parameters and generating the help page.
