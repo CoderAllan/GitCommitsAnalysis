@@ -10,9 +10,20 @@ namespace GitCommitsAnalysis.Model
         public List<DateTime> CommitDates { get; } = new List<DateTime>();
         public int? CyclomaticComplexity { get; set; } = null;
         public int? LinesOfCode { get; set; } = null;
+        public DateTime LatestCommit { get; set; } = DateTime.MinValue;
+        public int CodeAge
+        {
+            get
+            {
+                var now = DateTime.Now;
+                int monthsApart = 12 * (now.Year - LatestCommit.Year) + now.Month - LatestCommit.Month;
+                return Math.Abs(monthsApart);
+            }
+        }
 
-        public static string GetDictKey(string filename, string username) { 
-            return filename + "*" + username; 
+        public static string GetDictKey(string filename, string username)
+        {
+            return filename + "*" + username;
         }
     }
 }

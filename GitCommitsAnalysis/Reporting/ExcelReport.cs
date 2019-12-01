@@ -101,11 +101,11 @@ namespace GitCommitsAnalysis.Reporting
             sheet.Cells[rowCounter, 1].Style.Font.Size = 16;
             rowCounter++;
 
-            var latestFileCommit = fileChange.CommitDates.OrderByDescending(cd => cd).First();
             sheet.Cells[rowCounter, 1].Value = "Latest commit";
             sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-            sheet.Cells[rowCounter, 2].Value = latestFileCommit;
-            rowCounter++; sheet.Cells[rowCounter, 1].Value = "Commits";
+            sheet.Cells[rowCounter, 2].Value = fileChange.LatestCommit;
+            rowCounter++; 
+            sheet.Cells[rowCounter, 1].Value = "Commits";
             sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
             sheet.Cells[rowCounter, 2].Value = fileChange.CommitCount;
             rowCounter++;

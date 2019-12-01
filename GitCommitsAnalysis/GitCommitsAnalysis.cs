@@ -106,6 +106,10 @@ namespace GitCommitsAnalysis
                                 IncDictionaryValue(analysis.FileTypes, fileType);
                             }
                             analysis.FileCommits[filename].CommitDates.Add(commitDate);
+                            if(analysis.FileCommits[filename].LatestCommit < commitDate)
+                            {
+                                analysis.FileCommits[filename].LatestCommit = commitDate;
+                            }
 
                             var usernameFilename = UsernameFilename.GetDictKey(filename, username);
                             if (analysis.UserfileCommits.ContainsKey(usernameFilename)) { analysis.UserfileCommits[usernameFilename].CommitCount++; } else { analysis.UserfileCommits[usernameFilename] = new FileStat { Filename = filename, Username = username }; }
@@ -132,6 +136,7 @@ namespace GitCommitsAnalysis
                         IncFolderCommitValue(children, currentFolder, commitCount);
                         children = children[currentFolder].Children;
                     }
+                    var codeAge = fileChange.Value.CommitDates.OrderByDescending(cd => cd).First();
                 }
                 var o = analysis.FolderCommits.OrderBy(p => p.Key);
                 analysis.AnalysisTime = (DateTime.UtcNow.Ticks - analysis.CreatedDate.Ticks) / 10000; // Analysis time in milliseconds
