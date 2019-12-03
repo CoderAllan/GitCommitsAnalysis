@@ -33,7 +33,7 @@ namespace GitCommitsAnalysis.Reporting
             AddNavTabs(sb);
             sb.AppendLine("<div class=\"tab-content\">");
             sb.AppendLine("<div role=\"tabpanel\" class=\"tab-pane active\" id=\"commitsForEachSubfolder\">");
-            AddSectionCommitsForEachMonth(sb);
+            AddSectionCommitsForEachFolder(sb);
             sb.Append($"<h2 id=\"mostChangedFiles\">Top {NumberOfFilesToList} most changed files</h2>");
             var sectionCounter = 1;
             foreach (var fileChange in FileCommitsList.Take(NumberOfFilesToList))
@@ -117,6 +117,18 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine(".pl40 {");
             sb.AppendLine("  padding-left: 40px;");
             sb.AppendLine("}");
+            sb.AppendLine(".spinner {");
+            sb.AppendLine("  height: 48px;");
+            sb.AppendLine("  width: 48px;");
+            sb.AppendLine("  border: 5px solid rgba(150, 150, 150, 0.2);");
+            sb.AppendLine("  border-radius: 50%;");
+            sb.AppendLine("  border-top-color: rgb(150, 150, 150);");
+            sb.AppendLine("  animation: rotate 1s 0s infinite linear normal;");
+            sb.AppendLine("}");
+            sb.AppendLine("@keyframes rotate {");
+            sb.AppendLine("  0%   { transform: rotate(0);      }");
+            sb.AppendLine("  100% { transform: rotate(360deg); }");
+            sb.AppendLine("}");
             sb.AppendLine("</style>");
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
@@ -159,13 +171,16 @@ namespace GitCommitsAnalysis.Reporting
             }
             sb.AppendLine("   ]);");
             sb.AppendLine("   var options = { title: 'Commits for each sub-folder' }; ");
-            sb.AppendLine("   var chart = new google.visualization.PieChart(document.getElementById('piechart'));");
+            sb.AppendLine("   var element = document.getElementById('piechart');");
+            sb.AppendLine("   element.classList.remove(\"spinner\");");
+            sb.AppendLine("   element.style = \"width: 900px; height: 500px;\"");
+            sb.AppendLine("   var chart = new google.visualization.PieChart(element);");
             sb.AppendLine("   chart.draw(data, options);");
             sb.AppendLine("}");
             sb.AppendLine("</script>");
         }
 
-        private void AddSectionCommitsForEachMonth(StringBuilder sb)
+        private void AddSectionCommitsForEachFolder(StringBuilder sb)
         {
             var totalCommits = FileCommitsList.Sum(fc => fc.CommitCount);
             sb.AppendLine("<div class=\"row\">");
@@ -184,7 +199,7 @@ namespace GitCommitsAnalysis.Reporting
                 {
                     sb.AppendLine($"<tr id=\"folderTrExpand{folderCounter}\" class=\"nested\"><td colspan=\"3\" style=\"overflow: scroll\">");
                     sb.AppendLine($"<ul id=\"folderUlExpand{folderCounter}\" class=\"nested\">");
-                    AddSectionCommitsForEachMonthChildren(sb, folder, 0);
+                    AddSectionCommitsForEachFolderChildren(sb, folder, 0);
                     sb.AppendLine("</ul>");
                     sb.AppendLine("</td></tr>");
                 }
@@ -196,7 +211,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</div>");
             sb.AppendLine("<div class=\"col-md-6\">");
             AddPieChartJavascript(sb);
-            sb.AppendLine("<div id=\"piechart\" style=\"width: 900px; height: 500px; \"></div>");
+            sb.AppendLine("<div id=\"piechart\" style=\"width: 48px; height: 48px;\" class=\"spinner\"></div>");
             sb.AppendLine("<script type=\"text/javascript\">");
             sb.AppendLine("var toggler = document.getElementsByClassName(\"treeViewCaret\");");
             sb.AppendLine("var i;");
@@ -221,7 +236,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</div></div>");
         }
 
-        private void AddSectionCommitsForEachMonthChildren(StringBuilder sb, FolderStat parentFolder, int indent)
+        private void AddSectionCommitsForEachFolderChildren(StringBuilder sb, FolderStat parentFolder, int indent)
         {
             if (parentFolder.Children.Keys.Count > 0)
             {
@@ -235,7 +250,7 @@ namespace GitCommitsAnalysis.Reporting
                     if (folder.Children.Keys.Count > 0)
                     {
                         sb.AppendLine($"<ul class=\"nested\">");
-                        AddSectionCommitsForEachMonthChildren(sb, folder, indent + 1);
+                        AddSectionCommitsForEachFolderChildren(sb, folder, indent + 1);
                         sb.AppendLine("</ul>");
                     }
                     sb.AppendLine("</li>");
@@ -338,7 +353,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</div></div>");
         }
 
-        private void AddcommitsEachDayChartJavascript(StringBuilder sb, Dictionary<DateTime, int> commitsEachDay)
+        private void AddCommitsEachDayChartJavascript(StringBuilder sb, Dictionary<DateTime, int> commitsEachDay)
         {
             sb.AppendLine("<script type=\"text/javascript\">");
             sb.AppendLine("google.charts.load('current', { 'packages':['corechart']});");
@@ -357,7 +372,10 @@ namespace GitCommitsAnalysis.Reporting
             }
             sb.AppendLine("   ]);");
             sb.AppendLine("   var options = { width: 1200, height: 500, legend: 'none', hAxis: { title: 'Date'}, vAxis: { title: 'Commits' } }; ");
-            sb.AppendLine("   var chart = new google.visualization.LineChart(document.getElementById('commitsEachDayChart'));");
+            sb.AppendLine("   var element = document.getElementById('commitsEachDayChart');");
+            sb.AppendLine("   element.classList.remove(\"spinner\");");
+            sb.AppendLine("   element.style = \"width: 1200px; height: 500px;\"");
+            sb.AppendLine("   var chart = new google.visualization.LineChart(element);");
             sb.AppendLine("   chart.draw(data, options);");
             sb.AppendLine("}");
             sb.AppendLine("</script>");
@@ -368,8 +386,8 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<div class=\"row\">");
             sb.AppendLine("<div class=\"col\">");
             sb.AppendLine("<h2>Commits for each day</h2>");
-            AddcommitsEachDayChartJavascript(sb, commitsEachDay);
-            sb.AppendLine("<div id=\"commitsEachDayChart\"></div>");
+            AddCommitsEachDayChartJavascript(sb, commitsEachDay);
+            sb.AppendLine("<div id=\"commitsEachDayChart\" class=\"spinner\"></div>");
             sb.AppendLine("</div></div>");
         }
 
@@ -394,7 +412,10 @@ namespace GitCommitsAnalysis.Reporting
             }
             sb.AppendLine("   ]);");
             sb.AppendLine("   var options = { width: 1200, height: 500, hAxis: { title: 'Date'}, vAxis: { title: 'Lines added/deleted' } }; ");
-            sb.AppendLine("   var chart = new google.visualization.LineChart(document.getElementById('linesChangedEachDayChart'));");
+            sb.AppendLine("   var element = document.getElementById('linesChangedEachDayChart');");
+            sb.AppendLine("   element.classList.remove(\"spinner\");");
+            sb.AppendLine("   element.style = \"width: 1200px; height: 500px;\"");
+            sb.AppendLine("   var chart = new google.visualization.LineChart(element);");
             sb.AppendLine("   chart.draw(data, options);");
             sb.AppendLine("}");
             sb.AppendLine("</script>");
@@ -407,7 +428,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<h2>Lines changed each day</h2>");
             sb.AppendLine();
             AddLinesChangedEachDayChartJavascript(sb, linesOfCodeAddedEachDay, linesOfCodeDeletedEachDay);
-            sb.AppendLine("<div id=\"linesChangedEachDayChart\"></div>");
+            sb.AppendLine("<div id=\"linesChangedEachDayChart\" class=\"spinner\"></div>");
             sb.AppendLine("</div></div>");
         }
 
@@ -431,7 +452,10 @@ namespace GitCommitsAnalysis.Reporting
             }
             sb.AppendLine("   ]);");
             sb.AppendLine("   var options = { width: 1200, height: 500, legend: 'none', hAxis: { title: 'Codeage'}, vAxis: { title: 'Filechanges' } }; ");
-            sb.AppendLine("   var chart = new google.visualization.ColumnChart(document.getElementById('codeAgeChart'));");
+            sb.AppendLine("   var element = document.getElementById('codeAgeChart');");
+            sb.AppendLine("   element.classList.remove(\"spinner\");");
+            sb.AppendLine("   element.style = \"width: 1200px; height: 500px;\""); 
+            sb.AppendLine("   var chart = new google.visualization.ColumnChart(element);");
             sb.AppendLine("   chart.draw(data, options);");
             sb.AppendLine("}");
             sb.AppendLine("</script>");
@@ -444,7 +468,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("<h2>Code age</h2>");
             sb.AppendLine();
             AddCodeAgeChartJavascript(sb, codeAge);
-            sb.AppendLine("<div id=\"codeAgeChart\"></div>");
+            sb.AppendLine("<div id=\"codeAgeChart\" class=\"spinner\"></div>");
             sb.AppendLine("</div></div>");
         }
 
@@ -509,7 +533,7 @@ namespace GitCommitsAnalysis.Reporting
 
             sb.AppendLine("<div class=\"col-md-6\">");
             AddScatterplotJavascript(sb, commitDates, sectionCounter);
-            sb.AppendLine($"    <div id=\"scatterChart{sectionCounter}\" style=\"width: 900px; height: 300px; \"></div>");
+            sb.AppendLine($"    <div id=\"scatterChart{sectionCounter}\" class=\"spinner\"></div>");
             sb.AppendLine("</div>");
             sb.AppendLine("</div>");
         }
@@ -551,7 +575,10 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine(commitDatesString);
             sb.AppendLine("]);");
             sb.AppendLine("var options = { title: 'User commits for each date', legend: 'none' };");
-            sb.AppendLine($"var chart = new google.visualization.ScatterChart(document.getElementById('scatterChart{sectionCounter}'));");
+            sb.AppendLine($"var element = document.getElementById('scatterChart{sectionCounter}');");
+            sb.AppendLine("element.classList.remove(\"spinner\");");
+            sb.AppendLine("element.style = \"width: 900px; height: 300px;\"");
+            sb.AppendLine("var chart = new google.visualization.ScatterChart(element);");
             sb.AppendLine($"chart.draw(data{sectionCounter}, options);");
             sb.AppendLine("}");
             sb.AppendLine("</script>");
@@ -583,7 +610,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("</div>");
             sb.AppendLine("<div class=\"col-md-8\">");
             AddTagsScatterplotJavascript(sb, tagDates);
-            sb.AppendLine("    <div id=\"scatterChartTags\" style=\"width: 900px; height: 300px; \"></div>");
+            sb.AppendLine("    <div id=\"scatterChartTags\" \" class=\"spinner\"></div>");
             sb.AppendLine("</div></div>");
         }
 
@@ -603,6 +630,10 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine(tagDatesString);
             sb.AppendLine("]);");
             sb.AppendLine("var options = { width: 900, height: 300, title: 'Tags', legend: 'none' };");
+            sb.AppendLine("var element = document.getElementById('scatterChartTags');");
+            sb.AppendLine("element.classList.remove(\"spinner\");");
+            sb.AppendLine("element.style = \"width: 900px; height: 300px;\"");
+            sb.AppendLine("var chart = new google.visualization.ScatterChart(element);");
             sb.AppendLine($"var chart = new google.visualization.ScatterChart(document.getElementById('scatterChartTags'));");
             sb.AppendLine($"chart.draw(dataTags, options);");
             sb.AppendLine("}");
