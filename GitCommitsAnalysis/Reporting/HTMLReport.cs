@@ -454,7 +454,7 @@ namespace GitCommitsAnalysis.Reporting
             sb.AppendLine("   var options = { width: 1200, height: 500, legend: 'none', hAxis: { title: 'Codeage'}, vAxis: { title: 'Filechanges' } }; ");
             sb.AppendLine("   var element = document.getElementById('codeAgeChart');");
             sb.AppendLine("   element.classList.remove(\"spinner\");");
-            sb.AppendLine("   element.style = \"width: 1200px; height: 500px;\""); 
+            sb.AppendLine("   element.style = \"width: 1200px; height: 500px;\"");
             sb.AppendLine("   var chart = new google.visualization.ColumnChart(element);");
             sb.AppendLine("   chart.draw(data, options);");
             sb.AppendLine("}");
@@ -498,17 +498,24 @@ namespace GitCommitsAnalysis.Reporting
 
         private void AddSectionCommitsForEachFile(StringBuilder sb, FileStat fileChange, int sectionCounter)
         {
-            var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
-            var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
-            var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A";
             sb.AppendLine("<div class=\"row\"><div class=\"col-md-6\">");
             sb.AppendLine($"<h3>{WebUtility.HtmlEncode(fileChange.Filename)}</h3>");
             sb.AppendLine("<table class=\"table pull-left\" style=\"width: 500px\">");
             sb.AppendLine($"<tr><td class=\"text-right\">Latest commit</td><td>{fileChange.LatestCommit.ToString("yyyy-MM-dd")}</td></tr>");
             sb.AppendLine($"<tr><td class=\"text-right\">Commits</td><td>{fileChange.CommitCount}</td></tr>");
-            sb.AppendLine($"<tr><td class=\"text-right\">Lines of code</td><td>{linesOfCode}</td></tr>");
-            sb.AppendLine($"<tr><td class=\"text-right\">Cyclomatic Complexity</td><td>{cyclomaticComplexity}</td></tr>");
-            sb.AppendLine($"<tr><td class=\"text-right\">Method count</td><td>{methodCount}</td></tr>");
+            if (fileChange.FileExists)
+            {
+                var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
+                var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
+                var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A";
+                sb.AppendLine($"<tr><td class=\"text-right\">Lines of code</td><td>{linesOfCode}</td></tr>");
+                sb.AppendLine($"<tr><td class=\"text-right\">Cyclomatic Complexity</td><td>{cyclomaticComplexity}</td></tr>");
+                sb.AppendLine($"<tr><td class=\"text-right\">Method count</td><td>{methodCount}</td></tr>");
+            }
+            else
+            {
+                sb.AppendLine($"<tr><td class=\"text-right\">File has been deleted</td><td></td></tr>");
+            }
             sb.AppendLine("</table>");
             sb.AppendLine("</div>");
             sb.AppendLine("<div class=\"col-md-6\">");

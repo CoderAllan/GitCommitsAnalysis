@@ -10,6 +10,7 @@ namespace GitCommitsAnalysis.Model
         public List<DateTime> CommitDates { get; } = new List<DateTime>();
         public int? CyclomaticComplexity { get; set; } = null;
         public int? LinesOfCode { get; set; } = null;
+        public bool FileExists { get; set; } = false;
         public DateTime LatestCommit { get; set; } = DateTime.MinValue;
         public int CodeAge
         {

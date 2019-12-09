@@ -56,7 +56,6 @@ namespace GitCommitsAnalysis
                         IncDictionaryValue(analysis.LinesOfCodeDeletedEachDay, commitDate, patch.LinesDeleted);
                         foreach (TreeEntryChanges change in repo.Diff.Compare<TreeChanges>(parent.Tree, commit.Tree))
                         {
-                            int linesOfCode = 0;
                             int cyclomaticComplexity = 0;
                             int methodCount = 0;
                             var fullPath = Path.Combine(rootFolder, change.Path);
@@ -85,9 +84,12 @@ namespace GitCommitsAnalysis
                             }
                             else
                             {
-                                if (fileHandling.FileExists(fullPath))
+                                int linesOfCode = 0;
+                                var fileExists = fileHandling.FileExists(fullPath);
+                                if (fileExists)
                                 {
                                     var fileContents = fileHandling.ReadFileContent(fullPath);
+                                    linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
                                     if (change.Path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
                                     {
                                         var syntaxTree = CodeAnalyser.GetSyntaxTree(fileContents);
@@ -99,10 +101,9 @@ namespace GitCommitsAnalysis
                                     {
                                         methodCount = MethodCounter.Calculate(typeScriptAst, fileContents);
                                     }
-                                    linesOfCode = linesOfCodeCalculator.Calculate(fileContents);
                                     analysis.LinesOfCodeanalyzed += linesOfCode;
                                 }
-                                analysis.FileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode, MethodCount = methodCount };
+                                analysis.FileCommits[filename] = new FileStat { Filename = filename, CyclomaticComplexity = cyclomaticComplexity, LinesOfCode = linesOfCode, MethodCount = methodCount, FileExists = fileExists };
                                 IncDictionaryValue(analysis.FileTypes, fileType);
                             }
                             analysis.FileCommits[filename].CommitDates.Add(commitDate);
