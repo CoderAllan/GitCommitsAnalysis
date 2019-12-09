@@ -61,9 +61,16 @@ namespace GitCommitsAnalysis.Reporting
                 sb.AppendLine("|---:|----:|");
                 sb.AppendLine($"| Latest commit | {fileChange.LatestCommit.ToString("yyyy-MM-dd")} |");
                 sb.AppendLine($"| Commits | {fileChange.CommitCount} |");
-                sb.AppendLine($"| Lines of code | {linesOfCode} |");
-                sb.AppendLine($"| Cyclomatic Complexity | {cyclomaticComplexity} |");
-                sb.AppendLine($"| Method count | {methodCount} |");
+                if (fileChange.FileExists)
+                {
+                    sb.AppendLine($"| Lines of code | {linesOfCode} |");
+                    sb.AppendLine($"| Cyclomatic Complexity | {cyclomaticComplexity} |");
+                    sb.AppendLine($"| Method count | {methodCount} |");
+                }
+                else
+                {
+                    sb.AppendLine($"| File has been deleted | |");
+                }
                 sb.AppendLine();
 
                 sb.AppendLine("__Commits by user:__\n");

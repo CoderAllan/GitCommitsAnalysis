@@ -112,20 +112,29 @@ namespace GitCommitsAnalysis.Reporting
             sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
             sheet.Cells[rowCounter, 2].Value = fileChange.CommitCount;
             rowCounter++;
-            var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
-            sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-            sheet.Cells[rowCounter, 2].Value = linesOfCode;
-            rowCounter++;
-            var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
-            sheet.Cells[rowCounter, 1].Value = "Cyclomatic complexity";
-            sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-            sheet.Cells[rowCounter, 2].Value = cyclomaticComplexity;
-            rowCounter++;
-            var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A"; sheet.Cells[rowCounter, 1].Value = "Lines of code";
-            sheet.Cells[rowCounter, 1].Value = "Method count";
-            sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-            sheet.Cells[rowCounter, 2].Value = methodCount;
-            rowCounter++;
+            if (fileChange.FileExists)
+            {
+                var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
+                sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                sheet.Cells[rowCounter, 2].Value = linesOfCode;
+                rowCounter++;
+                var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
+                sheet.Cells[rowCounter, 1].Value = "Cyclomatic complexity";
+                sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                sheet.Cells[rowCounter, 2].Value = cyclomaticComplexity;
+                rowCounter++;
+                var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A"; sheet.Cells[rowCounter, 1].Value = "Lines of code";
+                sheet.Cells[rowCounter, 1].Value = "Method count";
+                sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                sheet.Cells[rowCounter, 2].Value = methodCount;
+                rowCounter++;
+            }
+            else
+            {
+                sheet.Cells[rowCounter, 1].Value = "File has been deleted";
+                sheet.Cells[rowCounter, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                rowCounter++;
+            }
 
             TableHeader(sheet, rowCounter, 1, "Author", 25);
             TableHeader(sheet, rowCounter, 2, "Commits", 9);

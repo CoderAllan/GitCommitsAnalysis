@@ -43,10 +43,14 @@ namespace GitCommitsAnalysis.Reporting
             foreach (var fileChange in FileCommitsList.Take(50))
             {
                 sb.AppendLine("");
-                var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
-                var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
-                var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A";
-                sb.AppendLine($"{fileChange.Filename}: {fileChange.CommitCount} - Latest commit: {fileChange.LatestCommit.ToString("yyyy-MM-dd")} - Lines of code: {linesOfCode} - Cyclomatic Complexity: {cyclomaticComplexity} - Method count: {methodCount}\n");
+                string fileInfo = "File has been deleted";
+                if (fileChange.FileExists) {
+                    var linesOfCode = fileChange.LinesOfCode > 0 ? fileChange.LinesOfCode.ToString() : "N/A";
+                    var cyclomaticComplexity = fileChange.CyclomaticComplexity > 0 ? fileChange.CyclomaticComplexity.ToString() : "N/A";
+                    var methodCount = fileChange.MethodCount > 0 ? fileChange.MethodCount.ToString() : "N/A";
+                    fileInfo = $"Lines of code: {linesOfCode} - Cyclomatic Complexity: {cyclomaticComplexity} - Method count: {methodCount}";
+                }
+                sb.AppendLine($"{fileChange.Filename}: {fileChange.CommitCount} - Latest commit: {fileChange.LatestCommit.ToString("yyyy-MM-dd")} - {fileInfo}\n");
                 foreach (var userfileChange in UserfileCommitsList.Where(ufc => ufc.Filename == fileChange.Filename))
                 {
                     var username = string.Format("{0,20}", userfileChange.Username);
