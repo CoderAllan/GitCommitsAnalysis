@@ -23,6 +23,7 @@ namespace GitCommitsAnalysis.Reporting
             this.UserfileCommitsList = analysis.UserfileCommits.Values.OrderByDescending(fc => fc.CommitCount).ThenBy(fc => fc.Filename).ThenBy(fc => fc.Username);
             this.FolderCommits = analysis.FolderCommits;
             this.FolderCommitsList = analysis.FolderCommits.Values.OrderByDescending(fc => fc.FileChanges);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             using (var excelPackage = new ExcelPackage())
             {
